@@ -1,9 +1,9 @@
 {
-    "display_name": "🌸 梦向陪伴 (Yume)",
+    "display_name": "🌸 梦向陪伴 (Yume Companion)",
     "js": "index.js",
     "css": "style.css",
     "author": "Yume",
     "version": "1.0.0",
-    "description": "梦向专属陪伴系统：深度身体档案、情书递交系统与随机惊喜回信。",
+    "description": "梦向专属陪伴系统：深度身体档案、情书递交系统与随机惊喜掉落。",
     "minimum_client_version": "1.11.0"
 }

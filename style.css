@@ -1,9 +1,11 @@
-/* 标题颜色 */
+/* 标题颜色：使用主题自适应或粉色 */
 .yume-title {
     color: #ff9a9e;
     margin-top: 5px;
     margin-bottom: 10px;
     font-weight: bold;
+    border-bottom: 1px dashed rgba(255, 154, 158, 0.5);
+    padding-bottom: 5px;
 }
 
 /* 输入框行布局 */
@@ -11,12 +13,17 @@
     display: flex;
     align-items: center;
     margin-bottom: 8px;
+    justify-content: space-between;
 }
 
 .yume-row label {
     flex: 0 0 70px;
     font-size: 0.9em;
     opacity: 0.9;
+}
+
+.yume-row .text_pole {
+    flex: 1;
 }
 
 /* 发送按钮样式 */
