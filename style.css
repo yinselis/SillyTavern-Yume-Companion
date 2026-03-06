@@ -1,53 +1,35 @@
-#yume-floating-btn {
-    position: fixed;
-    bottom: 90px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #ff9a9e, #fecfef);
-    border-radius: 50%;
-    box-shadow: 0 4px 15px rgba(255, 154, 158, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 9999;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    user-select: none;
-}
-
-#yume-floating-btn:hover {
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: 0 6px 20px rgba(255, 154, 158, 0.8);
-}
-
-/* 弹窗内的标签页按钮 */
-.yume-tab-btn {
-    background: transparent;
-    border: 2px solid #ff9a9e;
+/* 标题颜色 */
+.yume-title {
     color: #ff9a9e;
-    padding: 6px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    margin-right: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
     font-weight: bold;
-    transition: all 0.2s;
 }
 
-.yume-tab-btn.active {
-    background: #ff9a9e;
-    color: white;
-}
-
-/* 输入框样式微调 */
-.yume-input-row {
+/* 输入框行布局 */
+.yume-row {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
-    gap: 10px;
+    margin-bottom: 8px;
 }
-.yume-input-row label {
-    flex: 1;
-    font-size: 0.95em;
+
+.yume-row label {
+    flex: 0 0 70px;
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+/* 发送按钮样式 */
+#ym_send_letter_btn {
+    margin-top: 10px;
+    background-color: rgba(255, 154, 158, 0.15);
+    border: 1px solid #ff9a9e;
+    color: var(--SmartThemeBodyColor);
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+#ym_send_letter_btn:hover {
+    background-color: #ff9a9e;
+    color: white;
 }

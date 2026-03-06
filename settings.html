@@ -1,0 +1,59 @@
+<div id="yume-companion-settings" class="inline-drawer">
+    <!-- 头部：在扩展列表里显示的标题 -->
+    <div class="inline-drawer-toggle inline-drawer-header">
+        <b>🌸 梦向陪伴 (Yume Companion)</b>
+        <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
+    </div>
+
+    <!-- 展开后的内容区 -->
+    <div class="inline-drawer-content">
+        
+        <!-- 模块 1：身体与心理档案 -->
+        <div class="settings_section">
+            <h4 class="yume-title">📊 我的绝密档案</h4>
+            <div class="yume-row">
+                <label>🎂 生日:</label>
+                <input type="text" id="ym_birth" class="text_pole" placeholder="如: 12月25日">
+            </div>
+            <div class="yume-row">
+                <label>✨ 性格:</label>
+                <input type="text" id="ym_mbti" class="text_pole" placeholder="如: INFP / 容易内耗">
+            </div>
+            <div class="yume-row">
+                <label>📏 身高(cm):</label>
+                <input type="number" id="ym_h" class="text_pole">
+                <label style="margin-left:10px;">⚖️ 体重(kg):</label>
+                <input type="number" id="ym_w" class="text_pole">
+            </div>
+            <div class="yume-row">
+                <label>🩸 生理期:</label>
+                <input type="text" id="ym_period" class="text_pole" placeholder="如: 还有3天 / 正在痛经">
+            </div>
+            <div class="yume-row">
+                <label>☁️ 心情:</label>
+                <input type="text" id="ym_vibe" class="text_pole" placeholder="如: 今天很累，需要抱抱">
+            </div>
+        </div>
+
+        <hr class="sysHR" />
+
+        <!-- 模块 2：写情书 -->
+        <div class="settings_section">
+            <h4 class="yume-title">💌 递交信笺</h4>
+            <div style="font-size: 0.85em; opacity: 0.8; margin-bottom: 5px;">把想说的话写进信纸，递给当前的TA吧...</div>
+            <textarea id="ym_letter_content" class="text_pole" rows="4" placeholder="亲爱的..."></textarea>
+            <div class="menu_button" id="ym_send_letter_btn">
+                <i class="fa-solid fa-paper-plane"></i> 递交情书
+            </div>
+        </div>
+
+        <hr class="sysHR" />
+
+        <!-- 模块 3：惊喜开关 -->
+        <div class="settings_section flex-container">
+            <input type="checkbox" id="ym_surprise_enable">
+            <label for="ym_surprise_enable">🎁 开启随机惊喜掉落 (聊天时AI有概率突然给你写信)</label>
+        </div>
+
+    </div>
+</div>
