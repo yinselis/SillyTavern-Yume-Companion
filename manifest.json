@@ -1,0 +1,9 @@
+{
+    "name": "Yume Companion",
+    "description": "梦向专属陪伴系统：悬浮球、深度身体档案、情书系统与随机惊喜回信。",
+    "version": "1.0.0",
+    "author": "YourName",
+    "main": "index.js",
+    "style": "style.css",
+    "requires": []
+}
