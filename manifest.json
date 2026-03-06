@@ -3,7 +3,7 @@
     "js": "index.js",
     "css": "style.css",
     "author": "Yume",
-    "version": "1.0.0",
-    "description": "梦向专属陪伴系统：深度身体档案、情书递交系统与随机惊喜掉落。",
+    "version": "2.0.0",
+    "description": "梦女专属独立系统：悬浮球、高阶生理期追踪与后台独立信笺互通。",
     "minimum_client_version": "1.11.0"
 }

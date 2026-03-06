@@ -1,0 +1,73 @@
+<div id="yume-main-modal" style="display: none;">
+    <div class="yume-modal-header">
+        <h3>🌸 梦向专属手账</h3>
+        <button id="yume-close-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <!-- 顶部分类 Tab -->
+    <div class="yume-tabs">
+        <div class="yume-tab active" data-target="yume-tab-profile">绝密档案</div>
+        <div class="yume-tab" data-target="yume-tab-period">生理期</div>
+        <div class="yume-tab" data-target="yume-tab-letters">信笺记录</div>
+    </div>
+
+    <div class="yume-modal-content">
+        <!-- 选项卡 1: 档案 -->
+        <div id="yume-tab-profile" class="yume-tab-pane active">
+            <div class="yume-input-group">
+                <label>🎂 生日</label> <input type="text" id="ym_birth" class="text_pole" placeholder="如: 3月27日">
+            </div>
+            <div class="yume-input-group">
+                <label>✨ 性格</label> <input type="text" id="ym_mbti" class="text_pole" placeholder="如: INFP">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="yume-input-group">
+                    <label>📏 身高(cm)</label> <input type="number" id="ym_h" class="text_pole">
+                </div>
+                <div class="yume-input-group">
+                    <label>⚖️ 体重(kg)</label> <input type="number" id="ym_w" class="text_pole">
+                </div>
+            </div>
+            <div class="yume-input-group">
+                <label>☁️ 今日心情</label> <input type="text" id="ym_vibe" class="text_pole" placeholder="如: 今天很累，需要抱抱">
+            </div>
+        </div>
+
+        <!-- 选项卡 2: 生理期高阶追踪 -->
+        <div id="yume-tab-period" class="yume-tab-pane">
+            <p style="font-size: 0.9em; opacity: 0.8; margin-bottom: 10px;">填写后，系统将自动计算日期并告知TA你的身体状况。</p>
+            <div class="yume-input-group">
+                <label>🩸 上次开始日期</label> <input type="date" id="ym_p_last" class="text_pole">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="yume-input-group">
+                    <label>周期天数</label> <input type="number" id="ym_p_cycle" class="text_pole" value="28" placeholder="默认28">
+                </div>
+                <div class="yume-input-group">
+                    <label>持续天数</label> <input type="number" id="ym_p_duration" class="text_pole" value="5" placeholder="默认5">
+                </div>
+            </div>
+            <div id="yume-period-status" style="margin-top: 15px; padding: 10px; background: rgba(255,154,158,0.2); border-radius: 8px; text-align: center; font-weight: bold; color: #ff9a9e;">
+                请填写日期计算状态
+            </div>
+        </div>
+
+        <!-- 选项卡 3: 信笺系统 -->
+        <div id="yume-tab-letters" class="yume-tab-pane">
+            <div id="yume-letters-history">
+                <!-- 历史信件会动态渲染在这里 -->
+            </div>
+            <div class="yume-letter-writer">
+                <textarea id="ym_letter_input" class="text_pole" rows="3" placeholder="写下想对TA说的话..."></textarea>
+                <button id="ym_send_letter_btn" class="yume-btn">
+                    <i class="fa-solid fa-paper-plane"></i> 悄悄寄出
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 屏幕悬浮球 -->
+<div id="yume-floating-btn" title="打开梦向手账">
+    🌸
+</div>
