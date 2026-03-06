@@ -40,8 +40,9 @@ async function initSidebarUI() {
     $('#extensions_settings').append(await $.get(htmlPath));
 
     const bindSetting = (id, key, isCheck = false, callback = null) => {
-        $(`#${id}`).val(settings[key]);
         if(isCheck) $(`#${id}`).prop('checked', settings[key]);
+        else $(`#${id}`).val(settings[key]);
+        
         $(`#${id}`).on(isCheck ? 'change' : 'input', (e) => {
             settings[key] = isCheck ? $(e.target).prop('checked') : $(e.target).val();
             context.saveSettingsDebounced();
@@ -97,6 +98,7 @@ async function initModalUI() {
         initialX = fab.offset().left - $(window).scrollLeft(); initialY = fab.offset().top - $(window).scrollTop();
         $(document).on('mousemove touchmove', onDrag).on('mouseup touchend', onStop);
     });
+    
     function onDrag(e) {
         const evt = e.type.includes('touch') ? e.originalEvent.touches[0] : e;
         if (Math.abs(evt.clientX - startX) > 10 || Math.abs(evt.clientY - startY) > 10) isDragging = true;
@@ -107,6 +109,7 @@ async function initModalUI() {
             fab.css({ left: newX, top: newY, right: 'auto', bottom: 'auto' });
         }
     }
+    
     function onStop() {
         $(document).off('mousemove touchmove', onDrag).off('mouseup touchend', onStop);
         if (isDragging) { settings.fabX = fab.css('left'); settings.fabY = fab.css('top'); context.saveSettingsDebounced(); }
@@ -121,7 +124,7 @@ async function initModalUI() {
         $('.yume-tab-pane').removeClass('active'); $(`#${$(this).data('target')}`).addClass('active');
     });
 
-    // 档案绑定['birth', 'mbti', 'vibe'].forEach(id => {
+    // 📌 这里修复了之前的致命语法错误['birth', 'mbti', 'vibe'].forEach(id => {
         $(`#ym_${id}`).val(settings[id == 'birth' ? 'birthday' : id]).on('input', (e) => {
             settings[id == 'birth' ? 'birthday' : id] = $(e.target).val();
             context.saveSettingsDebounced(); updateProfileInjection();
@@ -205,7 +208,7 @@ async function callYumeAI(taskPrompt) {
             return "（TA的思绪似乎断开了连接，请检查独立API设置或网络...）";
         }
     } else {
-        // 使用酒馆默认后台生成 (静默生成自带一定上下文，但我们加上系统提示词确保人设不崩)
+        // 使用酒馆默认后台生成
         return await context.generateQuietPrompt({ quietPrompt: sysPrompt + "\n\n【任务要求】\n" + taskPrompt });
     }
 }
@@ -224,7 +227,7 @@ async function handleInteraction(type) {
     $('#yume-interact-text').text('');
     $('#yume-interact-loading').show();
 
-    const task = `用户刚刚对你做了一个动作：*${acts[type]}*。请给出一个简短但符合你人设的反应描写和一两句对话。只需输出你的反应，控制在80字左右。`;
+    const task = `用户刚刚对你做了一个动作：*${acts[type]}*。请给出一个简短但符合你人设的反应描写和一两句对话。只需输出你的反应，控制在100字左右。`;
     
     const reply = await callYumeAI(task);
     
