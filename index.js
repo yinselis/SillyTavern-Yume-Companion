@@ -124,7 +124,9 @@ async function initModalUI() {
         $('.yume-tab-pane').removeClass('active'); $(`#${$(this).data('target')}`).addClass('active');
     });
 
-    // 📌 这里修复了之前的致命语法错误['birth', 'mbti', 'vibe'].forEach(id => {
+    // 档案绑定 (不再有被吃掉的代码了)
+    const profileInputs = ['birth', 'mbti', 'vibe'];
+    profileInputs.forEach(id => {
         $(`#ym_${id}`).val(settings[id == 'birth' ? 'birthday' : id]).on('input', (e) => {
             settings[id == 'birth' ? 'birthday' : id] = $(e.target).val();
             context.saveSettingsDebounced(); updateProfileInjection();
