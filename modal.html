@@ -2,85 +2,84 @@
     <div class="yume-modal-header">
         <div>
             <h3>🌸 梦向专属手账</h3>
-            <div id="yume-anniversary-text" style="font-size: 0.8em; opacity: 0.8;">陪伴天数计算中...</div>
+            <div id="yume-anniversary-text" style="font-size: 0.8em; opacity: 0.8;"></div>
         </div>
         <button id="yume-close-btn"><i class="fa-solid fa-xmark"></i></button>
     </div>
     
     <!-- 顶部分类 Tab -->
     <div class="yume-tabs">
-        <div class="yume-tab active" data-target="yume-tab-profile">档案</div>
-        <div class="yume-tab" data-target="yume-tab-period">生理期</div>
-        <div class="yume-tab" data-target="yume-tab-interact">互动</div>
-        <div class="yume-tab" data-target="yume-tab-letters">信笺</div>
+        <div class="yume-tab active" data-target="yume-tab-profile">👤档案</div>
+        <div class="yume-tab" data-target="yume-tab-interact">💬互动</div>
+        <div class="yume-tab" data-target="yume-tab-letters">💌信笺</div>
+        <div class="yume-tab" data-target="yume-tab-diary">📖日记</div>
     </div>
 
     <div class="yume-modal-content">
-        <!-- 选项卡 1: 档案 -->
+        <!-- 1. 档案与生理期 (合并精简) -->
         <div id="yume-tab-profile" class="yume-tab-pane active">
-            <div class="yume-input-group">
-                <label>🎂 生日</label> <input type="text" id="ym_birth" class="text_pole" placeholder="如: 3月27日">
-            </div>
-            <div class="yume-input-group">
-                <label>✨ 性格</label> <input type="text" id="ym_mbti" class="text_pole" placeholder="如: INFP">
-            </div>
             <div style="display: flex; gap: 10px;">
-                <div class="yume-input-group">
-                    <label>📏 身高(cm)</label> <input type="number" id="ym_h" class="text_pole">
-                </div>
-                <div class="yume-input-group">
-                    <label>⚖️ 体重(kg)</label> <input type="number" id="ym_w" class="text_pole">
-                </div>
+                <div class="yume-input-group"><label>🎂 生日</label> <input type="text" id="ym_birth" class="text_pole"></div>
+                <div class="yume-input-group"><label>✨ 性格</label> <input type="text" id="ym_mbti" class="text_pole"></div>
             </div>
-            <div class="yume-input-group">
-                <label>☁️ 今日心情</label> <input type="text" id="ym_vibe" class="text_pole" placeholder="今天很累，需要抱抱">
+            <div class="yume-input-group"><label>☁️ 今日心情</label> <input type="text" id="ym_vibe" class="text_pole" placeholder="今天很累，需要抱抱"></div>
+            <hr class="sysHR">
+            <h4 style="color:#ff9a9e; margin-bottom:10px;">🩸 生理期追踪</h4>
+            <div class="yume-input-group"><label>上次开始日期</label> <input type="date" id="ym_p_last" class="text_pole"></div>
+            <div style="display: flex; gap: 10px;">
+                <div class="yume-input-group"><label>周期天数</label> <input type="number" id="ym_p_cycle" class="text_pole" value="28"></div>
+                <div class="yume-input-group"><label>持续天数</label> <input type="number" id="ym_p_duration" class="text_pole" value="5"></div>
             </div>
+            <div id="yume-period-status" class="yume-highlight-box">请填写日期</div>
         </div>
 
-        <!-- 选项卡 2: 生理期 -->
-        <div id="yume-tab-period" class="yume-tab-pane">
-            <p style="font-size: 0.9em; opacity: 0.8; margin-bottom: 10px;">填写后，系统将自动向TA同步你的身体状况。</p>
-            <div class="yume-input-group">
-                <label>🩸 上次开始日期</label> <input type="date" id="ym_p_last" class="text_pole">
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <div class="yume-input-group">
-                    <label>周期天数</label> <input type="number" id="ym_p_cycle" class="text_pole" value="28">
-                </div>
-                <div class="yume-input-group">
-                    <label>持续天数</label> <input type="number" id="ym_p_duration" class="text_pole" value="5">
-                </div>
-            </div>
-            <div id="yume-period-status" class="yume-highlight-box">
-                请填写日期计算状态
-            </div>
-        </div>
-
-        <!-- 选项卡 3: 陪伴互动 (新增!) -->
+        <!-- 2. 陪伴互动 -->
         <div id="yume-tab-interact" class="yume-tab-pane">
-            <p style="font-size: 0.9em; opacity: 0.8; margin-bottom: 10px; text-align: center;">想TA了？随时随地触碰TA吧。</p>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button class="yume-btn-outline" onclick="yumeInteract('poke')">👉 戳戳 TA的脸颊</button>
-                <button class="yume-btn-outline" onclick="yumeInteract('hug')">🫂 求抱抱 / 撒娇</button>
-                <button class="yume-btn-outline" onclick="yumeInteract('sleep')">🛌 睡不着，哄我睡觉</button>
-                <button class="yume-btn-outline" onclick="yumeInteract('vent')">🌧️ 心情不好，倾诉一下</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <button class="yume-btn-outline" onclick="yumeInteract('poke')">👉 戳脸颊</button>
+                <button class="yume-btn-outline" onclick="yumeInteract('hug')">🫂 求抱抱</button>
+                <button class="yume-btn-outline" onclick="yumeInteract('sleep')">🛌 哄睡觉</button>
+                <button class="yume-btn-outline" onclick="yumeInteract('vent')">🌧️ 倒苦水</button>
+            </div>
+            <!-- 互动结果显示区 -->
+            <div id="yume-interact-result" style="display:none; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; min-height: 100px;">
+                <div id="yume-interact-loading" style="text-align:center; color:#ff9a9e; display:none;"><i class="fa-solid fa-spinner fa-spin"></i> TA正在靠近...</div>
+                <div id="yume-interact-text" style="line-height: 1.6;"></div>
             </div>
         </div>
 
-        <!-- 选项卡 4: 信笺系统 -->
+        <!-- 3. 信笺系统 -->
         <div id="yume-tab-letters" class="yume-tab-pane">
-            <div id="yume-letters-history"></div>
-            <div class="yume-letter-writer">
-                <textarea id="ym_letter_input" class="text_pole" rows="3" placeholder="写下想对TA说的话..."></textarea>
-                <button id="ym_send_letter_btn" class="yume-btn">
-                    <i class="fa-solid fa-paper-plane"></i> 悄悄寄出
-                </button>
+            <div id="yume-letters-history" class="yume-bubble-container"></div>
+            <div class="yume-writer-box">
+                <textarea id="ym_letter_input" class="text_pole" rows="2" placeholder="写下想对TA说的话..."></textarea>
+                <button id="ym_send_letter_btn" class="yume-btn">悄悄寄出</button>
             </div>
+        </div>
+
+        <!-- 4. 专属日记本 (NEW) -->
+        <div id="yume-tab-diary" class="yume-tab-pane">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <button id="ym_btn_write_diary" class="yume-btn-outline" style="width: 48%; margin: 0; padding: 8px;">+ 写日记</button>
+                <button id="ym_btn_ai_diary" class="yume-btn-outline" style="width: 48%; margin: 0; padding: 8px;">偷看TA的日记</button>
+            </div>
+            
+            <!-- 写日记区域 -->
+            <div id="yume-diary-writer" style="display:none; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                <textarea id="ym_diary_input" class="text_pole" rows="4" placeholder="今天发生了什么..."></textarea>
+                <div style="display: flex; gap: 15px; margin: 10px 0;">
+                    <label><input type="checkbox" id="ym_diary_public" checked> 允许TA偷看</label>
+                    <label><input type="checkbox" id="ym_diary_reply"> 渴望TA的留言</label>
+                </div>
+                <button id="ym_save_diary_btn" class="yume-btn" style="margin: 0; padding: 8px;">锁上日记本</button>
+            </div>
+
+            <!-- 日记列表区 -->
+            <div id="yume-diary-history" class="yume-bubble-container" style="height: 320px;"></div>
         </div>
     </div>
 </div>
 
-<!-- 屏幕悬浮球 (极高z-index防遮挡) -->
 <div id="yume-floating-btn" title="长按拖动，点击打开">
     <span id="yume-float-text">🌸</span>
 </div>

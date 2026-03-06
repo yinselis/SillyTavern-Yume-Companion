@@ -1,17 +1,13 @@
 <div id="yume-companion-settings" class="inline-drawer">
     <div class="inline-drawer-toggle inline-drawer-header">
-        <b>🌸 梦向陪伴 基础设置</b>
+        <b>🌸 梦向陪伴 设置</b>
         <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
     </div>
     <div class="inline-drawer-content">
         <div class="settings_section">
-            <div class="flex-container alignItemsCenter" style="margin-bottom: 10px;">
+            <div class="flex-container alignItemsCenter" style="margin-bottom: 5px;">
                 <input type="checkbox" id="ym_setting_float">
                 <label for="ym_setting_float">显示屏幕悬浮球</label>
-            </div>
-            <div class="flex-container alignItemsCenter" style="margin-bottom: 10px;">
-                <input type="checkbox" id="ym_setting_surprise">
-                <label for="ym_setting_surprise">开启主聊天随机掉落惊喜</label>
             </div>
             
             <hr class="sysHR">
@@ -24,9 +20,23 @@
                 <label>纪念日(哪天在一起的):</label>
                 <input type="date" id="ym_anniversary" class="text_pole">
             </div>
-            
+
             <hr class="sysHR">
-            <small style="opacity: 0.7;">✨ 核心功能请点击屏幕悬浮球打开【专属面板】体验。</small>
+            <h4 style="color: #ff9a9e; margin-bottom: 5px;">🔌 独立后台 API (可选)</h4>
+            <small style="opacity: 0.7; display: block; margin-bottom: 10px;">设置后，信笺、互动、日记将使用此独立API，不消耗主聊天上下文。留空则默认使用酒馆当前API。</small>
+            
+            <div class="yume-row-mini">
+                <label>API URL (如: https://api.openai.com/v1)</label>
+                <input type="text" id="ym_api_url" class="text_pole" placeholder="留空使用默认">
+            </div>
+            <div class="yume-row-mini">
+                <label>API Key</label>
+                <input type="password" id="ym_api_key" class="text_pole" placeholder="sk-...">
+            </div>
+            <div class="yume-row-mini">
+                <label>模型 (Model)</label>
+                <input type="text" id="ym_api_model" class="text_pole" placeholder="gpt-4o-mini 或其他">
+            </div>
         </div>
     </div>
 </div>

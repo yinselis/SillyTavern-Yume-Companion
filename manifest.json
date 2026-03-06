@@ -3,7 +3,7 @@
     "js": "index.js",
     "css": "style.css",
     "author": "Yume",
-    "version": "3.0.0",
-    "description": "梦女专属独立系统：可拖动自定义悬浮球、高阶生理期追踪、纪念日与专属互动陪伴。",
+    "version": "4.0.0",
+    "description": "梦女专属系统：全新气泡UI、独立API配置、日记本系统、深度读取世界书的专属陪伴。",
     "minimum_client_version": "1.11.0"
 }
