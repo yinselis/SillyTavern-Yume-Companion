@@ -1,6 +1,6 @@
 <div id="yume-companion-settings" class="inline-drawer">
     <div class="inline-drawer-toggle inline-drawer-header">
-        <b>🌸 梦向陪伴 设置</b>
+        <b>🌸 梦向陪伴 基础设置</b>
         <div class="inline-drawer-icon fa-solid fa-circle-chevron-down"></div>
     </div>
     <div class="inline-drawer-content">
@@ -9,12 +9,24 @@
                 <input type="checkbox" id="ym_setting_float">
                 <label for="ym_setting_float">显示屏幕悬浮球</label>
             </div>
-            <div class="flex-container alignItemsCenter">
+            <div class="flex-container alignItemsCenter" style="margin-bottom: 10px;">
                 <input type="checkbox" id="ym_setting_surprise">
-                <label for="ym_setting_surprise">开启随机掉落惊喜(主聊天)</label>
+                <label for="ym_setting_surprise">开启主聊天随机掉落惊喜</label>
             </div>
+            
             <hr class="sysHR">
-            <small style="opacity: 0.7;">✨ 请点击屏幕右下角的悬浮球打开专属面板填写档案与信笺。</small>
+            
+            <div class="yume-row-mini">
+                <label>悬浮球图案(图片URL):</label>
+                <input type="text" id="ym_float_icon" class="text_pole" placeholder="留空则显示默认🌸图标">
+            </div>
+            <div class="yume-row-mini">
+                <label>纪念日(哪天在一起的):</label>
+                <input type="date" id="ym_anniversary" class="text_pole">
+            </div>
+            
+            <hr class="sysHR">
+            <small style="opacity: 0.7;">✨ 核心功能请点击屏幕悬浮球打开【专属面板】体验。</small>
         </div>
     </div>
 </div>
