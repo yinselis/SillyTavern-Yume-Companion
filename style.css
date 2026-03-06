@@ -5,7 +5,6 @@
 /* 悬浮球样式 (支持拖拽与图片) */
 #yume-floating-btn {
     position: fixed;
-    /* 默认位置放在屏幕右侧中部偏上，避免挡住输入框 */
     top: 40%;
     right: 15px;
     width: 55px;
@@ -20,27 +19,28 @@
     justify-content: center;
     font-size: 26px;
     cursor: grab;
-    z-index: 9999999; /* 极高的层级，绝不被遮挡 */
-    touch-action: none; /* 防止手机端拖拽时页面跟着滚动 */
+    z-index: 9999999; 
+    touch-action: none; 
     user-select: none;
     transition: transform 0.1s;
 }
-#yume-floating-btn:active { cursor: grabbing; transform: scale(0.95); }
+#yume-floating-btn:active { transform: scale(0.95); }
 
-/* 独立弹窗主体 */
+/* ✨核心修复：独立弹窗主体 */
 #yume-main-modal {
     position: fixed;
-    top: 50%;
+    top: 8vh; /* 距离顶部固定 8% 的距离，防止头部被切掉 */
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%); /* 仅水平居中，取消垂直偏移 */
     width: 400px;
     max-width: 92vw;
     height: 600px;
-    max-height: 85vh;
-    background: var(--SmartThemeBlurTintColor, rgba(30, 30, 30, 0.9));
+    max-height: 80vh; /* 限制最高不超过屏幕80%，给输入法留空间 */
+    /* 加深背景色，防止太透明看不清 */
+    background: var(--SmartThemeBackgroundColor, rgba(40, 40, 40, 0.95)); 
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 154, 158, 0.4);
+    border: 1px solid rgba(255, 154, 158, 0.6);
     border-radius: 15px;
     z-index: 9999999;
     display: flex;
@@ -60,7 +60,7 @@
 #yume-close-btn { background: transparent; border: none; color: inherit; font-size: 1.2em; cursor: pointer; }
 
 /* Tabs */
-.yume-tabs { display: flex; background: rgba(0,0,0,0.2); }
+.yume-tabs { display: flex; background: rgba(0,0,0,0.2); flex-shrink: 0; }
 .yume-tab {
     flex: 1; text-align: center; padding: 10px 0; cursor: pointer; font-size: 0.9em; font-weight: bold; opacity: 0.5;
 }

@@ -68,7 +68,6 @@ async function initSidebarUI() {
     });
 }
 
-// 更新悬浮球图标
 function updateFloatingIcon() {
     const fab = $('#yume-floating-btn');
     const text = $('#yume-float-text');
@@ -81,7 +80,6 @@ function updateFloatingIcon() {
     }
 }
 
-// 计算纪念日天数
 function calculateAnniversary() {
     if (!settings.anniversary) {
         $('#yume-anniversary-text').text('未设置纪念日');
@@ -111,12 +109,11 @@ async function initModalUI() {
     if(!settings.showFloat) fab.hide();
     updateFloatingIcon();
 
-    // 恢复保存的位置
     if (settings.fabX && settings.fabY) {
         fab.css({ left: settings.fabX, top: settings.fabY, right: 'auto', bottom: 'auto' });
     }
 
-    // --- 悬浮球拖拽逻辑 (支持触屏和鼠标) ---
+    // --- ✨核心修复：悬浮球拖拽逻辑 (防止误触) ---
     let isDragging = false;
     let startX, startY, initialX, initialY;
 
@@ -136,12 +133,16 @@ async function initModalUI() {
         const evt = e.type.includes('touch') ? e.originalEvent.touches[0] : e;
         const dx = evt.clientX - startX;
         const dy = evt.clientY - startY;
-        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) isDragging = true;
+        
+        // 只有手指移动超过 10 像素才算拖拽，防止普通点击被吞！
+        if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+            isDragging = true;
+        }
         
         if (isDragging) {
+            e.preventDefault(); // 防止拖拽时屏幕跟着滚动
             let newX = initialX + dx;
             let newY = initialY + dy;
-            // 防止拖出屏幕
             newX = Math.max(0, Math.min(newX, $(window).width() - fab.outerWidth()));
             newY = Math.max(0, Math.min(newY, $(window).height() - fab.outerHeight()));
             
@@ -159,13 +160,13 @@ async function initModalUI() {
         }
     }
 
-    // 点击事件（如果正在拖拽则不触发点击）
+    // ✨核心修复：点击事件切换显示/隐藏
     fab.on('click', function(e) {
         if (isDragging) {
-            e.preventDefault();
+            e.preventDefault(); // 如果是拖拽结束，不要触发点击
             return;
         }
-        $('#yume-main-modal').fadeIn(200);
+        $('#yume-main-modal').fadeToggle(200); // fadeToggle：开着就关，关着就开
     });
 
     $('#yume-close-btn').on('click', () => $('#yume-main-modal').fadeOut(200));
@@ -178,7 +179,7 @@ async function initModalUI() {
         $(`#${$(this).data('target')}`).addClass('active');
     });
 
-    // 绑定数据：档案与生理期
+    // 绑定数据
     const inputs =['birth', 'mbti', 'h', 'w', 'vibe'];
     inputs.forEach(id => {
         $(`#ym_${id}`).val(settings[id == 'birth' ? 'birthday' : id == 'h' ? 'height' : id == 'w' ? 'weight' : id]);
@@ -205,12 +206,9 @@ async function initModalUI() {
 
     renderLetters();
     $('#ym_send_letter_btn').on('click', handleSendLetter);
-    
-    // 暴露互动功能给 HTML 的 onclick
     window.yumeInteract = handleInteraction;
 }
 
-// 3. 计算生理期逻辑
 function calculatePeriod() {
     if (!settings.periodLast) {
         currentPeriodStatusText = '未知';
@@ -238,7 +236,6 @@ function calculatePeriod() {
     }
 }
 
-// 4. 注入档案
 function updateProfileInjection() {
     const context = SillyTavern.getContext();
     if (!settings.birthday && !settings.periodLast && !settings.vibe) return;
@@ -258,7 +255,6 @@ ${annivText}
     context.setExtensionPrompt('yume_profile', prompt, 4, 4, false, 0);
 }
 
-// 5. 互动陪伴系统 (一键响应)
 async function handleInteraction(type) {
     const context = SillyTavern.getContext();
     const userName = context.name1 || '用户';
@@ -277,13 +273,11 @@ async function handleInteraction(type) {
 用户 ${userName} 刚刚对你（${charName}）做了一个动作：
 *${actionDesc}*
 
-请根据你们目前聊天的上下文，以及你的性格设定，给出一个简短但极其宠溺、心疼或温柔的【反应描写+一两句情话/安慰】。
-注意：只需输出你的回应，不需要输出任何选项，也不要啰嗦。字数控制在100字左右。]`;
+请根据上下文和你的人设，给出一个简短但极其宠溺、温柔的【反应描写+一两句情话/安慰】。
+只需输出你的回应，不需要输出选项，控制在100字左右。]`;
 
         const aiReply = await context.generateQuietPrompt({ quietPrompt: quietPrompt });
-        
         toastr.clear();
-        // 用酒馆原生的高级弹窗展示互动结果
         context.Popup.show.text(`🌸 TA的反应：`, aiReply);
         
     } catch (e) {
@@ -292,7 +286,6 @@ async function handleInteraction(type) {
     }
 }
 
-// 6. 信笺系统
 function renderLetters() {
     const container = $('#yume-letters-history');
     container.empty();
@@ -338,10 +331,7 @@ async function handleSendLetter() {
 "${content}"
 
 请仔细阅读，然后**写一封回信**。
-要求：
-1. 必须是完整的信笺格式（抬头、正文、落款）。
-2. 感情要极度深情、宠溺、符合你平时的人设。
-3. 请只输出信件正文。]`;
+要求：必须是完整的信笺格式（抬头、正文、落款），感情要极度深情宠溺。只输出正文。]`;
 
         const aiReply = await context.generateQuietPrompt({ quietPrompt: quietPrompt });
 
@@ -357,7 +347,6 @@ async function handleSendLetter() {
     }
 }
 
-// 7. 随机掉落
 function handleRandomSurprise() {
     if (!settings.surpriseEnabled) return;
     const context = SillyTavern.getContext();
