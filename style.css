@@ -1,6 +1,8 @@
+/* ====== 基础布局 ====== */
 .yume-row-mini { margin-bottom: 8px; }
 .yume-row-mini label { font-size: 0.9em; opacity: 0.9; display: block; margin-bottom: 3px; }
 
+/* ====== 悬浮球 ====== */
 #yume-floating-btn {
     position: fixed; top: 40%; right: 15px; width: 55px; height: 55px;
     background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
@@ -12,9 +14,10 @@
 }
 #yume-floating-btn:active { transform: scale(0.95); }
 
+/* ====== 主弹窗容器 ====== */
 #yume-main-modal {
     position: fixed; top: 8vh; left: 50%; transform: translateX(-50%);
-    width: 400px; max-width: 92vw; height: 620px; max-height: 82vh;
+    width: 400px; max-width: 92vw; height: 650px; max-height: 85vh;
     background: var(--SmartThemeBackgroundColor, #222);
     backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 154, 158, 0.5); border-radius: 15px;
@@ -26,72 +29,42 @@
 .yume-modal-header {
     display: flex; justify-content: space-between; align-items: center;
     padding: 12px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
 }
 .yume-modal-header h3 { margin: 0; color: #ff9a9e; font-size: 1.1em; }
 #yume-close-btn { background: transparent; border: none; color: inherit; font-size: 1.2em; cursor: pointer; }
 
+/* ====== 标签页 ====== */
 .yume-tabs { display: flex; background: rgba(0,0,0,0.3); flex-shrink: 0; }
 .yume-tab { flex: 1; text-align: center; padding: 10px 0; cursor: pointer; font-size: 0.9em; font-weight: bold; opacity: 0.5; }
 .yume-tab.active { opacity: 1; color: #ff9a9e; border-bottom: 2px solid #ff9a9e; background: rgba(255, 154, 158, 0.1); }
 
-.yume-modal-content { flex: 1; overflow-y: auto; padding: 20px; }
-.yume-tab-pane { display: none; }
-.yume-tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
+/* ====== 内容区域 (解决留白的关键 flex:1) ====== */
+.yume-modal-content { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; }
+.yume-tab-pane { display: none; flex-direction: column; height: 100%; }
+.yume-tab-pane.active { display: flex; animation: fadeIn 0.3s ease; }
 
+/* 聊天列表通用容器 */
+.ym-chat-list {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
+    padding-right: 5px; min-height: 200px; padding-bottom: 20px;
+}
+
+/* ====== 通用组件 ====== */
 .yume-input-group { margin-bottom: 15px; flex: 1; }
 .yume-input-group label { display: block; margin-bottom: 5px; font-size: 0.85em; opacity: 0.8; }
-
 .yume-highlight-box { margin-top: 10px; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; background: rgba(255, 154, 158, 0.15); border: 1px dashed #ff9a9e; }
 
 .yume-btn { width: 100%; background: #ff9a9e; color: white; border: none; border-radius: 8px; padding: 10px; font-size: 1em; cursor: pointer; margin-top: 5px; transition: 0.2s; }
 .yume-btn:disabled { background: #888; cursor: not-allowed; }
 .yume-btn-outline { background: transparent; color: #ff9a9e; border: 1px solid #ff9a9e; border-radius: 8px; padding: 10px; font-size: 0.9em; cursor: pointer; transition: all 0.2s; }
 .yume-btn-outline:hover { background: rgba(255,154,158,0.2); }
-
-/* 🔥 终极气泡布局 (使用完全隔离的类名) */
-.ym-chat-list {
-    height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 5px;
-}
-.ym-msg-wrapper {
-    display: flex; flex-direction: column; max-width: 85%;
-}
-.ym-msg-wrapper.is-user { align-self: flex-end; align-items: flex-end; }
-.ym-msg-wrapper.is-ai { align-self: flex-start; align-items: flex-start; }
+.ym-btn-del { background: transparent; border: none; color: #ff9a9e; cursor: pointer; opacity: 0.5; transition: 0.2s; }
+.ym-btn-del:hover { opacity: 1; transform: scale(1.1); }
 
 .ym-msg-time { font-size: 0.7em; opacity: 0.6; margin-bottom: 4px; }
 
-.ym-bubble {
-    padding: 10px 14px; border-radius: 12px; font-size: 0.95em; line-height: 1.5;
-    word-break: break-word; white-space: pre-wrap;
-    background: rgba(255, 154, 158, 0.2);
-    border: 1px solid rgba(255, 154, 158, 0.1);
-}
-.ym-msg-wrapper.is-user .ym-bubble {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-bottom-right-radius: 2px;
-}
-.ym-msg-wrapper.is-ai .ym-bubble { border-bottom-left-radius: 2px; }
-
-/* 日记样式 */
-.yume-diary-card {
-    background: rgba(255, 245, 235, 0.08); border-left: 4px solid #ff9a9e;
-    padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 0.95em; line-height: 1.5;
-}
-.yume-diary-reply {
-    margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.2);
-    color: #ffb6b9; font-style: italic; font-size: 0.9em;
-}
-.ym-diary-ai-thinking { color: #888; font-style: italic; font-size: 0.85em; }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* 让日记和信笺列表完美撑满，解决留白 */
-.yume-tab-pane { display: none; flex-direction: column; height: 100%; }
-.yume-tab-pane.active { display: flex; animation: fadeIn 0.3s ease; }
-.ym-chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 5px; height: auto; padding-bottom: 20px;}
-
-/* 💌 真实的信纸样式 (代替聊天气泡) */
+/* ====== 💌 真实信纸样式 (代替气泡) ====== */
 .yume-letter-card {
     background: #fdfaf6; border: 1px solid #eaddd3; color: #5c4b41;
     padding: 18px 15px 15px 15px; border-radius: 4px; margin-bottom: 5px;
@@ -104,10 +77,55 @@
 }
 .yume-letter-header { font-size: 0.85em; opacity: 0.7; margin-bottom: 10px; border-bottom: 1px dashed #eaddd3; padding-bottom: 5px; text-align: left; }
 
-/* 📖 论坛式日记样式 */
-.ym-btn-del { background: transparent; border: none; color: #ff9a9e; cursor: pointer; opacity: 0.5; transition: 0.2s; }
-.ym-btn-del:hover { opacity: 1; transform: scale(1.1); }
-.yume-diary-reply { margin-top: 6px; padding: 8px; border-radius: 6px; font-size: 0.9em; line-height: 1.5; border-left: 3px solid transparent;}
-.yume-diary-reply.user-reply { background: rgba(255,255,255,0.05); border-left-color: #aaa; }
-.yume-diary-reply.ai-reply { background: rgba(255,154,158,0.1); color: #ffb6b9; border-left-color: #ff9a9e; }
-.ym-reply-box { display: flex; gap: 5px; margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px; }
+/* ====== 📖 论坛式日记样式 ====== */
+.yume-diary-card {
+    background: rgba(255, 245, 235, 0.08); border-left: 4px solid #ff9a9e;
+    padding: 12px; border-radius: 8px; font-size: 0.95em; line-height: 1.5;
+    display: flex; flex-direction: column; gap: 8px;
+}
+
+/* 评论区容器 */
+.yume-replies-container {
+    margin-top: 5px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* 单条评论样式 */
+.yume-diary-reply {
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    line-height: 1.4;
+    position: relative;
+    max-width: 90%;
+}
+
+/* 用户的评论：靠右 */
+.yume-diary-reply.user-reply {
+    align-self: flex-end;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ddd;
+    border-bottom-right-radius: 2px;
+}
+
+/* AI的评论：靠左 */
+.yume-diary-reply.ai-reply {
+    align-self: flex-start;
+    background: rgba(255, 154, 158, 0.15);
+    border: 1px solid rgba(255, 154, 158, 0.3);
+    color: #ffb6b9;
+    border-bottom-left-radius: 2px;
+}
+
+/* 评论输入框行 */
+.ym-reply-box {
+    display: flex; gap: 8px; margin-top: 5px; align-items: center;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

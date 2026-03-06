@@ -1,4 +1,5 @@
 <div id="yume-main-modal" style="display: none;">
+    <!-- 头部 -->
     <div class="yume-modal-header">
         <div>
             <h3>🌸 梦向专属手账</h3>
@@ -7,6 +8,7 @@
         <button id="yume-close-btn"><i class="fa-solid fa-xmark"></i></button>
     </div>
     
+    <!-- 标签栏 -->
     <div class="yume-tabs">
         <div class="yume-tab active" data-target="yume-tab-profile">👤档案</div>
         <div class="yume-tab" data-target="yume-tab-interact">💬互动</div>
@@ -14,8 +16,9 @@
         <div class="yume-tab" data-target="yume-tab-diary">📖日记</div>
     </div>
 
+    <!-- 内容区 -->
     <div class="yume-modal-content">
-        <!-- 档案 -->
+        <!-- 1. 档案 -->
         <div id="yume-tab-profile" class="yume-tab-pane active">
             <div style="display: flex; gap: 10px;">
                 <div class="yume-input-group"><label>🎂 生日</label> <input type="text" id="ym_birth" class="text_pole"></div>
@@ -32,7 +35,7 @@
             <div id="yume-period-status" class="yume-highlight-box">请填写日期</div>
         </div>
 
-        <!-- 互动 -->
+        <!-- 2. 互动 -->
         <div id="yume-tab-interact" class="yume-tab-pane">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                 <button class="yume-btn-outline" onclick="yumeInteract('poke')">👉 戳脸颊</button>
@@ -46,23 +49,23 @@
             </div>
         </div>
 
-        <!-- 信笺 -->
+        <!-- 3. 信笺 -->
         <div id="yume-tab-letters" class="yume-tab-pane">
             <div id="yume-letters-history" class="ym-chat-list"></div>
-            <div class="yume-writer-box" style="margin-top: 10px;">
+            <div class="yume-writer-box" style="margin-top: 10px; flex-shrink: 0;">
                 <textarea id="ym_letter_input" class="text_pole" rows="2" placeholder="写下想对TA说的话..."></textarea>
                 <button id="ym_send_letter_btn" class="yume-btn">悄悄寄出</button>
             </div>
         </div>
 
-<!-- 日记 -->
+        <!-- 4. 日记 -->
         <div id="yume-tab-diary" class="yume-tab-pane">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; flex-shrink: 0;">
                 <button id="ym_btn_write_diary" class="yume-btn-outline" style="width: 48%; margin: 0; padding: 8px;">+ 写日记</button>
                 <button id="ym_btn_ai_diary" class="yume-btn-outline" style="width: 48%; margin: 0; padding: 8px;">偷看TA的日记</button>
             </div>
             
-            <div id="yume-diary-writer" style="display:none; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+            <div id="yume-diary-writer" style="display:none; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin-bottom: 15px; flex-shrink: 0;">
                 <textarea id="ym_diary_input" class="text_pole" rows="4" placeholder="今天发生了什么..."></textarea>
                 <div style="display: flex; gap: 15px; margin: 10px 0;">
                     <label><input type="checkbox" id="ym_diary_public" checked> 允许TA偷看</label>
@@ -71,12 +74,13 @@
                 <button id="ym_save_diary_btn" class="yume-btn" style="margin: 0; padding: 8px;">锁上日记本</button>
             </div>
 
-            <!-- 这里去掉了写死的高度 -->
+            <!-- 核心列表：不再写死高度，用 flex:1 撑满 -->
             <div id="yume-diary-history" class="ym-chat-list"></div>
         </div>
     </div>
 </div>
 
+<!-- 悬浮球 -->
 <div id="yume-floating-btn" title="长按拖动，点击打开">
     <span id="yume-float-text">🌸</span>
 </div>
