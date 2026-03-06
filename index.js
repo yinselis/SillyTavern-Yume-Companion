@@ -10,6 +10,7 @@ const defaultSettings = {
 let settings = {};
 let currentPeriodStatusText = '未知'; 
 
+// 1. 初始化入口
 jQuery(async () => {
     const context = SillyTavern.getContext();
     context.eventSource.on(context.eventTypes.APP_READY, async () => {
@@ -32,6 +33,7 @@ function loadSettings() {
     }
 }
 
+// 2. 侧边栏 UI
 async function initSidebarUI() {
     const context = SillyTavern.getContext();
     const currentPath = import.meta.url.substring(0, import.meta.url.lastIndexOf('/'));
@@ -98,6 +100,7 @@ function calculateAnniversary() {
     $('#yume-anniversary-text').text(diff >= 0 ? `💕 已相伴 ${diff} 天` : `💕 距离相伴还有 ${Math.abs(diff)} 天`);
 }
 
+// 3. 主悬浮窗 UI
 async function initModalUI() {
     const context = SillyTavern.getContext();
     const currentPath = import.meta.url.substring(0, import.meta.url.lastIndexOf('/'));
@@ -140,7 +143,7 @@ async function initModalUI() {
         $('.yume-tab-pane').removeClass('active'); $(`#${$(this).data('target')}`).addClass('active');
     });
 
-    const profileInputs = ['birth', 'mbti', 'vibe'];
+    const profileInputs =['birth', 'mbti', 'vibe'];
     profileInputs.forEach(id => {
         $(`#ym_${id}`).val(settings[id == 'birth' ? 'birthday' : id]).on('input', (e) => {
             settings[id == 'birth' ? 'birthday' : id] = $(e.target).val();
@@ -165,8 +168,6 @@ async function initModalUI() {
     $('#ym_btn_write_diary').on('click', () => $('#yume-diary-writer').slideToggle());
     $('#ym_save_diary_btn').on('click', handleSaveDiary);
     $('#ym_btn_ai_diary').on('click', handleAIDiary);
-
-    window.yumeInteract = handleInteraction;
 }
 
 function calculatePeriod() {
@@ -183,16 +184,15 @@ function calculatePeriod() {
     }
 }
 
-// 🛡️ 终极魔法：完全绕开所有污染的底层 AI 生成！
+// 4. 核心 AI 调用（无污染直连）
 async function callYumeAI(taskPrompt) {
     const context = SillyTavern.getContext();
     const charName = context.name2 || '伴侣';
     const userName = context.name1 || '用户';
-    
     const char = context.characters[context.characterId] || {};
+    
     const sysPrompt = `你现在扮演 ${charName}。这是你的核心设定：\n${char.personality || ''}\n${char.description || ''}\n\n当前状态：你正在一个私下的陪伴空间中给用户(${userName})反馈。请完全遵循人设，语气极度自然、宠溺。绝不能暴露AI身份，绝不能包含系统通知！`;
 
-    // 1. 如果有独立 API
     if (settings.apiUrl && settings.apiKey) {
         try {
             let url = settings.apiUrl.endsWith('/') ? settings.apiUrl : settings.apiUrl + '/';
@@ -212,12 +212,11 @@ async function callYumeAI(taskPrompt) {
             return "（独立API请求失败，请检查设置或网络连接）";
         }
     } else {
-        // 2. 否则使用酒馆底层 generateRaw，彻底绕开当前对话预设/世界书
         try {
             const rawReply = await context.generateRaw({
                 systemPrompt: sysPrompt,
                 prompt: taskPrompt,
-                bypassChat: true // 不带任何历史记录和污染格式
+                bypassChat: true
             });
             return rawReply.trim();
         } catch (e) {
@@ -227,7 +226,8 @@ async function callYumeAI(taskPrompt) {
     }
 }
 
-async function handleInteraction(type) {
+// 全局暴露的快捷互动
+window.yumeInteract = async function(type) {
     const charName = SillyTavern.getContext().name2 || '伴侣';
     const acts = {
         'poke': `用手指轻轻戳了戳 ${charName} 的脸颊`,
@@ -235,26 +235,25 @@ async function handleInteraction(type) {
         'sleep': `拉了拉 ${charName} 的衣角，想要TA哄睡`,
         'vent': `靠在 ${charName} 肩膀上，说自己心情很差`
     };
-    
     $('#yume-interact-result').show();
     $('#yume-interact-text').text('');
     $('#yume-interact-loading').show();
-
     const task = `用户刚刚对你做了一个动作：*${acts[type]}*。请直接描写你的简短反应和一句对话，控制在80字左右。直接输出动作和说话内容即可，千万不要输出前言后语。`;
     const reply = await callYumeAI(task);
-    
     $('#yume-interact-loading').hide();
     $('#yume-interact-text').text(`🌸 ${charName}：\n${reply}`);
 }
 
+// 5. 信笺模块（真实信纸渲染）
 function renderLetters() {
     const $c = $('#yume-letters-history'); $c.empty();
     settings.letters.forEach(l => {
         const isUser = l.type === 'user';
+        const senderText = isUser ? `To TA - 寄出时间: ${l.date}` : `From TA - 收到时间: ${l.date}`;
         $c.append(`
-            <div class="ym-msg-wrapper ${isUser ? 'is-user' : 'is-ai'}">
-                <div class="ym-msg-time">${isUser ? '你' : 'TA'} - ${l.date}</div>
-                <div class="ym-bubble">${l.text}</div>
+            <div class="yume-letter-card">
+                <div class="yume-letter-header">✉️ ${senderText}</div>
+                <div>${l.text.replace(/\n/g, '<br>')}</div>
             </div>
         `);
     });
@@ -267,36 +266,61 @@ async function handleSendLetter() {
     
     settings.letters.push({ type: 'user', date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text });
     $('#ym_letter_input').val(''); renderLetters();
-    $('#ym_send_letter_btn').prop('disabled', true).text('TA正在提笔...');
+    $('#ym_send_letter_btn').prop('disabled', true).text('TA正在拆信...');
 
-    const task = `用户给你写了一封信：\n"${text}"\n\n请以你的口吻写一封回信。要求：极度深情宠溺，直接输出信的正文，不需要输出“这是我的回信”等系统废话。`;
-    const reply = await callYumeAI(task);
-    
-    settings.letters.push({ type: 'ai', date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: reply });
-    SillyTavern.getContext().saveSettingsDebounced(); renderLetters();
-    $('#ym_send_letter_btn').prop('disabled', false).text('悄悄寄出');
+    const task = `用户给你写了一封信：\n"${text}"\n\n请以你的口吻写一封回信。要求：极度深情宠溺，直接输出信的正文，不需要输出“这是回信”等系统废话。`;
+    // 不用 await 阻塞主线程，让他自己后台生成
+    callYumeAI(task).then(reply => {
+        settings.letters.push({ type: 'ai', date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: reply });
+        SillyTavern.getContext().saveSettingsDebounced(); 
+        renderLetters();
+        $('#ym_send_letter_btn').prop('disabled', false).text('悄悄寄出');
+        toastr.success('TA给你回信啦！', '🌸 收到回信');
+    });
 }
 
+// 6. 日记模块（支持多重盖楼和删除）
 function renderDiary() {
     const $c = $('#yume-diary-history'); $c.empty();
     settings.diary.slice().reverse().forEach(d => {
         let authorStr = d.author === 'user' ? '我的日记' : 'TA的日记';
-        let replyHtml = '';
-        if (d.aiReply) {
-            if (d.aiReply === 'loading') replyHtml = `<div class="ym-diary-ai-thinking"><i class="fa-solid fa-pen-nib fa-bounce"></i> TA正在悄悄写留言...</div>`;
-            else replyHtml = `<div class="yume-diary-reply">📝 TA的悄悄话：${d.aiReply}</div>`;
+        
+        // 渲染多重盖楼回复
+        let repliesHtml = (d.replies ||[]).map(r => `
+            <div class="yume-diary-reply ${r.author === 'user' ? 'user-reply' : 'ai-reply'}">
+                <b>${r.author === 'user' ? '我' : 'TA'}：</b>${r.text.replace(/\n/g, '<br>')}
+            </div>
+        `).join('');
+
+        // 兼容极早期版本的数据格式
+        if (d.aiReply && (!d.replies || d.replies.length === 0)) {
+            if (d.aiReply === 'loading') {
+                repliesHtml = `<div class="ym-diary-ai-thinking"><i class="fa-solid fa-pen-nib fa-bounce"></i> TA正在悄悄写留言...</div>`;
+            } else {
+                repliesHtml = `<div class="yume-diary-reply ai-reply"><b>TA：</b>${d.aiReply.replace(/\n/g, '<br>')}</div>`;
+            }
         }
+
         $c.append(`
             <div class="yume-diary-card">
-                <div class="ym-msg-time">📅 ${d.date} | ${authorStr}</div>
-                <div>${d.text}</div>
-                ${replyHtml}
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span class="ym-msg-time">📅 ${d.date} | ${authorStr}</span>
+                    <button class="ym-btn-del" onclick="yumeDeleteDiary(${d.id})" title="撕掉这页"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+                <div style="margin-bottom: 10px;">${d.text.replace(/\n/g, '<br>')}</div>
+                
+                <div class="yume-replies-container">${repliesHtml}</div>
+                
+                <div class="ym-reply-box">
+                    <input type="text" id="ym_reply_input_${d.id}" class="text_pole" style="flex:1; padding:5px 8px; font-size:0.85em;" placeholder="写条留言...">
+                    <button class="yume-btn-outline" style="padding:4px 10px; margin:0; font-size:0.85em;" onclick="yumeAddReply(${d.id}, 'user')">盖楼</button>
+                    <button class="yume-btn-outline" style="padding:4px 10px; margin:0; font-size:0.85em;" onclick="yumeAddReply(${d.id}, 'ai')">让TA回</button>
+                </div>
             </div>
         `);
     });
 }
 
-// 🛡️ 修复：真正的全自动后台静默回复
 function handleSaveDiary() {
     const text = $('#ym_diary_input').val().trim();
     if (!text) return;
@@ -304,8 +328,7 @@ function handleSaveDiary() {
     const isPublic = $('#ym_diary_public').prop('checked');
     const wantsReply = $('#ym_diary_reply').prop('checked');
     
-    // 直接推入一条记录，UI 立刻反馈，毫不卡顿！
-    let entry = { id: Date.now(), author: 'user', date: new Date().toLocaleDateString(), text, isPublic, aiReply: wantsReply ? 'loading' : '' };
+    let entry = { id: Date.now(), author: 'user', date: new Date().toLocaleDateString(), text, isPublic, replies:[] };
     settings.diary.push(entry);
     
     $('#ym_diary_input').val(''); 
@@ -314,33 +337,73 @@ function handleSaveDiary() {
     SillyTavern.getContext().saveSettingsDebounced();
     updateProfileInjection();
 
-    // 如果渴望回复，则开启后台线程，不阻塞主流程！
     if (wantsReply) {
-        const task = `你偶然看到了用户的这篇日记：\n"${text}"\n\n请以你的口吻写一句心疼或宠溺的留言，就像写在日记本空白处一样。直接输出留言内容，绝对不要有系统前缀。`;
-        // 不加 await，直接 then 回调
-        callYumeAI(task).then(reply => {
-            // 找到刚才那条日记，把加载状态替换成真实回复
-            const target = settings.diary.find(d => d.id === entry.id);
-            if (target) {
-                target.aiReply = reply;
-                SillyTavern.getContext().saveSettingsDebounced();
-                renderDiary();
-                toastr.success('TA在你的日记本里留言啦！', '🌸 收到留言');
-            }
-        });
+        yumeAddReply(entry.id, 'ai', true); // 触发AI初始回复
     }
 }
 
 async function handleAIDiary() {
     $('#ym_btn_ai_diary').prop('disabled', true).text('正在偷看...');
     const task = `请写一篇简短的私密日记。记录下你今天对用户的感觉、爱意或者反思。直接输出日记正文，绝不要带任何系统提示和前缀！`;
-    const reply = await callYumeAI(task);
-    
-    settings.diary.push({ id: Date.now(), author: 'ai', date: new Date().toLocaleDateString(), text: reply });
-    SillyTavern.getContext().saveSettingsDebounced(); renderDiary();
-    $('#ym_btn_ai_diary').prop('disabled', false).text('偷看TA的日记');
+    callYumeAI(task).then(reply => {
+        settings.diary.push({ id: Date.now(), author: 'ai', date: new Date().toLocaleDateString(), text: reply, replies:[] });
+        SillyTavern.getContext().saveSettingsDebounced(); 
+        renderDiary();
+        $('#ym_btn_ai_diary').prop('disabled', false).text('偷看TA的日记');
+        toastr.success('偷看成功！TA写了一篇新日记。', '🌸 秘密');
+    });
 }
 
+// 暴露到全局的日记操作函数
+window.yumeDeleteDiary = function(id) {
+    if(!confirm('确定要撕掉这一页日记吗？')) return;
+    settings.diary = settings.diary.filter(d => d.id !== id);
+    SillyTavern.getContext().saveSettingsDebounced();
+    renderDiary();
+    updateProfileInjection();
+};
+
+window.yumeAddReply = function(id, author, isInitial = false) {
+    const d = settings.diary.find(x => x.id === id);
+    if (!d) return;
+    if (!d.replies) d.replies =[];
+
+    // 如果是用户自己盖楼
+    if (author === 'user') {
+        const text = $(`#ym_reply_input_${id}`).val().trim();
+        if (!text) return toastr.warning('留言不能为空哦！');
+        d.replies.push({ author: 'user', text });
+        SillyTavern.getContext().saveSettingsDebounced();
+        renderDiary();
+        return;
+    }
+
+    // 如果是呼叫 AI 回复
+    if (author === 'ai') {
+        const contextHistory = d.replies.map(r => `${r.author === 'user' ? '用户' : '你'}说: ${r.text}`).join('\n');
+        const task = `这是用户写的一篇日记：\n"${d.text}"\n\n底下的留言记录：\n${contextHistory}\n\n请你紧接着上面的记录，写一句简短的心疼或宠溺的留言。直接输出你这句留言的内容，绝对不要有系统前缀，不要复读之前的留言！`;
+        
+        // 伪造一条 loading 数据渲染出来
+        const loadingId = Date.now();
+        d.replies.push({ author: 'ai', text: `<span id="ym_loading_${loadingId}"><i class="fa-solid fa-pen-nib fa-bounce"></i> TA正在打字...</span>`, isLoading: true });
+        renderDiary();
+
+        // 后台去请求
+        callYumeAI(task).then(reply => {
+            // 找到刚才那条 loading 的记录并替换成真实回复
+            const targetReply = d.replies.find(r => r.isLoading);
+            if (targetReply) {
+                targetReply.text = reply;
+                delete targetReply.isLoading;
+                SillyTavern.getContext().saveSettingsDebounced();
+                renderDiary();
+                if (!isInitial) toastr.success('TA回复了你的日记！', '🌸 新留言');
+            }
+        });
+    }
+};
+
+// 7. 更新酒馆上下文记忆 (Background Profile Injection)
 function updateProfileInjection() {
     const context = SillyTavern.getContext();
     if (!settings.birthday && !settings.periodLast && !settings.vibe && settings.diary.length === 0) return;
@@ -350,9 +413,9 @@ function updateProfileInjection() {
 
     const prompt = `[伴侣绝密档案：
 - 生日：${settings.birthday || '未知'}
-- 生理期：${currentPeriodStatusText}
-- 心情：${settings.vibe || '平静'} ${diaryText}
-请在对话中自然体现对上述信息的了解，并主动关怀。]`;
+- 生理期状态：${currentPeriodStatusText}
+- 今日心情：${settings.vibe || '平静'} ${diaryText}
+请在日常对话中自然体现对上述信息的了解，并主动关怀。]`;
 
     context.setExtensionPrompt('yume_profile', prompt, 4, 4, false, 0);
 }

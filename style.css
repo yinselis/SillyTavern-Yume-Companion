@@ -85,3 +85,29 @@
 .ym-diary-ai-thinking { color: #888; font-style: italic; font-size: 0.85em; }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* 让日记和信笺列表完美撑满，解决留白 */
+.yume-tab-pane { display: none; flex-direction: column; height: 100%; }
+.yume-tab-pane.active { display: flex; animation: fadeIn 0.3s ease; }
+.ym-chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 5px; height: auto; padding-bottom: 20px;}
+
+/* 💌 真实的信纸样式 (代替聊天气泡) */
+.yume-letter-card {
+    background: #fdfaf6; border: 1px solid #eaddd3; color: #5c4b41;
+    padding: 18px 15px 15px 15px; border-radius: 4px; margin-bottom: 5px;
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.15); font-family: 'Georgia', serif; position: relative;
+    line-height: 1.6;
+}
+.yume-letter-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; border-radius: 4px 4px 0 0;
+    background: repeating-linear-gradient(45deg, #ff9a9e, #ff9a9e 10px, #fdfaf6 10px, #fdfaf6 20px, #8ec5fc 20px, #8ec5fc 30px, #fdfaf6 30px, #fdfaf6 40px);
+}
+.yume-letter-header { font-size: 0.85em; opacity: 0.7; margin-bottom: 10px; border-bottom: 1px dashed #eaddd3; padding-bottom: 5px; text-align: left; }
+
+/* 📖 论坛式日记样式 */
+.ym-btn-del { background: transparent; border: none; color: #ff9a9e; cursor: pointer; opacity: 0.5; transition: 0.2s; }
+.ym-btn-del:hover { opacity: 1; transform: scale(1.1); }
+.yume-diary-reply { margin-top: 6px; padding: 8px; border-radius: 6px; font-size: 0.9em; line-height: 1.5; border-left: 3px solid transparent;}
+.yume-diary-reply.user-reply { background: rgba(255,255,255,0.05); border-left-color: #aaa; }
+.yume-diary-reply.ai-reply { background: rgba(255,154,158,0.1); color: #ffb6b9; border-left-color: #ff9a9e; }
+.ym-reply-box { display: flex; gap: 5px; margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px; }
