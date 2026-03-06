@@ -23,7 +23,7 @@
 
             <hr class="sysHR">
             <h4 style="color: #ff9a9e; margin-bottom: 5px;">🔌 独立后台 API (可选)</h4>
-            <small style="opacity: 0.7; display: block; margin-bottom: 10px;">设置后，信笺、互动、日记将使用此独立API，不消耗主聊天上下文。留空则默认使用酒馆当前API。</small>
+            <small style="opacity: 0.7; display: block; margin-bottom: 10px;">设置后，信笺、互动、日记将使用此独立API。留空则自动使用酒馆的“纯净生成通道”（不带任何世界书和格式污染）。</small>
             
             <div class="yume-row-mini">
                 <label>API URL (如: https://api.openai.com/v1)</label>
@@ -36,6 +36,9 @@
             <div class="yume-row-mini">
                 <label>模型 (Model)</label>
                 <input type="text" id="ym_api_model" class="text_pole" placeholder="gpt-4o-mini 或其他">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button id="ym_btn_save_api" class="menu_button" style="flex: 1; border: 1px solid #ff9a9e; color: #ff9a9e; background: transparent;"><i class="fa-solid fa-floppy-disk"></i> 保存并测试连接</button>
             </div>
         </div>
     </div>
