@@ -237,6 +237,43 @@ async function initSidebarUI() {
         } catch (e) { toastr.error('请求出错，请检查网络。'); }
         btn.html('<i class="fa-solid fa-floppy-disk"></i> 保存并测试');
     });
+
+    // 🚑 【新增】：数据急救站逻辑
+    $('#ym_btn_rescue_data').on('click', function() {
+        const currentId = context.characterId;
+        if (!currentId) {
+            toastr.warning('请先在酒馆主界面选中你要恢复的那个角色！');
+            return;
+        }
+
+        let bestData = null;
+        let maxItems = -1;
+
+        // 遍历所有存过的数据，找出字卡/日记最多的那一份
+        for (let id in settings.chars) {
+            let data = settings.chars[id];
+            let count = (data.wordCards ? data.wordCards.length : 0) + 
+                        (data.diary ? data.diary.length : 0) + 
+                        (data.letters ? data.letters.length : 0) +
+                        (data.notes ? data.notes.length : 0);
+            if (count > maxItems) {
+                maxItems = count;
+                bestData = data;
+            }
+        }
+
+        if (bestData && maxItems > 0) {
+            if (confirm(`找到了包含 ${maxItems} 条记录的历史数据（这应该就是你丢失的那份）。\n\n是否强行覆盖给当前的 ${context.name2 || '角色'}？`)) {
+                // 深拷贝数据，防止引用错误
+                settings.chars[currentId] = JSON.parse(JSON.stringify(bestData));
+                context.saveSettingsDebounced();
+                refreshAllDataBindings();
+                toastr.success('🎉 数据已成功找回并绑定！请打开手账查看。');
+            }
+        } else {
+            toastr.error('糟糕，没有在缓存中找到任何有内容的历史数据...');
+        }
+    });
 }
 
 function updateFloatingIcon() {
@@ -847,7 +884,6 @@ function renderWordCardChat() {
         const cls = isUser ? 'yume-bubble-user' : 'yume-bubble-ai';
         
         let content = msg.text;
-        // 如果是图片链接，直接渲染为 img 标签
         if (isImageUrl(content)) {
             content = `<img src="${content}" alt="图片字卡">`;
         } else {
@@ -863,13 +899,11 @@ function handleSendWordCard() {
     const text = $('#ym_card_chat_input').val().trim();
     if (!text) return;
 
-    // 1. 渲染用户发送的消息
     data.wordCardChat.push({ role: 'user', text: text });
     $('#ym_card_chat_input').val('');
     renderWordCardChat();
     scrollToBottom('yume-card-chat-history');
 
-    // 2. 准备 AI 回复
     setTimeout(() => {
         if (!data.wordCards || data.wordCards.length === 0) {
             data.wordCardChat.push({ role: 'ai', text: "（字卡库空空如也，快去添加吧~）" });
@@ -879,11 +913,9 @@ function handleSendWordCard() {
             return;
         }
 
-        // 随机决定这次连发几条 (1 到 4 条)
         const replyCount = Math.floor(Math.random() * 4) + 1;
         let currentDelay = 0;
 
-        // 循环设置定时器，实现“阶梯式”连发效果
         for (let i = 0; i < replyCount; i++) {
             setTimeout(() => {
                 const randomIndex = Math.floor(Math.random() * data.wordCards.length);
@@ -895,10 +927,9 @@ function handleSendWordCard() {
                 scrollToBottom('yume-card-chat-history');
             }, currentDelay);
             
-            // 下一条消息比上一条多延迟 600ms ~ 1200ms
             currentDelay += Math.floor(Math.random() * 600) + 600;
         }
-    }, 600); // 初始等待 0.6 秒
+    }, 600);
 }
 
 function renderWordCardList() {
@@ -914,7 +945,6 @@ function renderWordCardList() {
     }
 
     data.wordCards.forEach((card, index) => {
-        // 列表里如果是图片，显示小缩略图
         let displayContent = isImageUrl(card) ? `<img src="${card}" alt="图片">` : `<span>${card}</span>`;
         
         $list.append(`

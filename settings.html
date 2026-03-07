@@ -21,7 +21,6 @@
                 <label for="ym_setting_inject">开启记忆注入 (将档案同步给酒馆主聊天)</label>
             </div>
             
-            <!-- 新增：主动功能开关 -->
             <div class="flex-container alignItemsCenter" style="margin-bottom: 5px;">
                 <input type="checkbox" id="ym_setting_proactive">
                 <label for="ym_setting_proactive">允许TA主动制造惊喜 (耗费额外API)</label>
@@ -135,8 +134,16 @@
             
             <div style="display: flex; gap: 10px; margin-top: 10px;">
                 <button id="ym_btn_fetch_models" class="menu_button" style="flex: 1; border: 1px solid #a8d8ea; color: #a8d8ea; background: transparent;"><i class="fa-solid fa-rotate"></i> 拉取模型</button>
-                <button id="ym_btn_save_api" class="menu_button" style="flex: 1; border: 1px solid #ff9a9e; color: #ff9a9e; background: transparent;"><i class="fa-solid fa-floppy-disk"></i> 保存</button>
+                <button id="ym_btn_save_api" class="menu_button" style="flex: 1; border: 1px solid #ff9a9e; color: #ff9a9e; background: transparent;"><i class="fa-solid fa-floppy-disk"></i> 保存并测试</button>
             </div>
+
+            <!-- 数据急救站 -->
+            <hr class="sysHR">
+            <h4 style="color: #ff5a5f; margin-bottom: 5px;">🚑 数据急救站</h4>
+            <small style="opacity: 0.7; display: block; margin-bottom: 10px;">如果切回角色后发现手账空了，点击下方按钮强行找回！</small>
+            <button id="ym_btn_rescue_data" class="menu_button" style="width: 100%; border: 1px solid #ff5a5f; color: #ff5a5f; background: rgba(255,90,95,0.1); font-weight: bold;">
+                <i class="fa-solid fa-life-ring"></i> 一键找回丢失数据
+            </button>
         </div>
     </div>
 </div>
