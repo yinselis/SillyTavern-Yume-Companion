@@ -14,6 +14,7 @@
         <div class="yume-tab" data-target="yume-tab-interact">💬互动</div>
         <div class="yume-tab" data-target="yume-tab-letters">💌信笺</div>
         <div class="yume-tab" data-target="yume-tab-diary">📖日记</div>
+        <div class="yume-tab" data-target="yume-tab-cards">📇字卡</div>
     </div>
 
     <!-- 内容区 -->
@@ -26,13 +27,15 @@
                     <option value="dark">🌙 暗夜樱花 (默认)</option>
                     <option value="light">☀️ 晨曦白纸</option>
                     <option value="matcha">🍵 抹茶信笺</option>
+                    <option value="sakura">🌸 落樱缤纷 (精致)</option>
+                    <option value="gothic">🍷 玫瑰暗影 (哥特)</option>
                 </select>
             </div>
             <div style="display: flex; gap: 10px;">
                 <div class="yume-input-group"><label>🎂 生日</label> <input type="text" id="ym_birth" class="text_pole"></div>
                 <div class="yume-input-group"><label>✨ 性格</label> <input type="text" id="ym_mbti" class="text_pole"></div>
             </div>
-            <div class="yume-input-group"><label>☁️ 今日心情</label> <input type="text" id="ym_vibe" class="text_pole" placeholder="今天很累，需要抱抱"></div>
+            <!-- 删除了心情模块 -->
             <hr class="sysHR">
             <h4 style="color:var(--ym-primary); margin-bottom:10px;">🩸 生理期追踪</h4>
             <div style="display: flex; gap: 10px;">
@@ -60,7 +63,7 @@
             </div>
         </div>
 
-        <!-- 3. 信笺 (修改为右上角新建) -->
+        <!-- 3. 信笺 -->
         <div id="yume-tab-letters" class="yume-tab-pane">
             <div style="display: flex; justify-content: flex-end; margin-bottom: 10px; flex-shrink: 0;">
                 <button id="ym_btn_write_letter" class="yume-btn-outline" style="padding: 6px 15px;">+ 递交信笺</button>
@@ -98,6 +101,34 @@
             </div>
 
             <div id="yume-diary-history" class="ym-chat-list"></div>
+        </div>
+
+        <!-- 5. 字卡 -->
+        <div id="yume-tab-cards" class="yume-tab-pane">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; flex-shrink: 0; gap: 5px;">
+                <button id="ym_btn_manage_cards" class="yume-btn-outline" style="flex:1; padding: 6px;"><i class="fa-solid fa-list"></i> 管理字卡</button>
+                <button id="ym_btn_ai_cards" class="yume-btn-outline" style="flex:1; padding: 6px;" title="根据酒馆聊天记录自动生成新字卡"><i class="fa-solid fa-wand-magic-sparkles"></i> 记录提取</button>
+            </div>
+
+            <div id="yume-card-manager" style="display:none; background: rgba(128,128,128,0.1); padding: 15px; border-radius: 12px; margin-bottom: 10px; flex-shrink: 0;">
+                <p style="font-size:0.85em; opacity:0.8; margin-bottom:5px;">批量导入字卡 (每行一句)：</p>
+                <textarea id="ym_card_import_input" class="text_pole" rows="4" placeholder="亲亲&#10;抱抱&#10;我在你身边"></textarea>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button id="ym_save_cards_btn" class="yume-btn" style="margin: 0; padding: 6px; flex:2;">导入追加</button>
+                    <button id="ym_clear_cards_btn" class="yume-btn" style="margin: 0; padding: 6px; flex:1; background:#dc3545;">清空</button>
+                </div>
+                <div id="yume-card-count" style="margin-top:10px; font-size:0.85em; color:var(--ym-primary); text-align:center;">当前拥有字卡：0 句</div>
+            </div>
+
+            <div class="yume-wordcard-container">
+                <div id="yume-card-chat-history" class="yume-wordcard-chat">
+                    <!-- 聊天气泡区域 -->
+                </div>
+                <div class="yume-wordcard-input-area">
+                    <input type="text" id="ym_card_chat_input" class="text_pole" style="flex:1;" placeholder="发送消息，触发字卡...">
+                    <button id="ym_send_card_msg_btn" class="yume-btn" style="width:auto; padding: 0 15px; margin:0;"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

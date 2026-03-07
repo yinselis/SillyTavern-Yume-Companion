@@ -3,7 +3,7 @@
     "js": "index.js",
     "css": "style.css",
     "author": "Yume",
-    "version": "4.0.0",
-    "description": "梦女专属系统：全新气泡UI、独立API配置、日记本系统、深度读取世界书的专属陪伴。",
+    "version": "5.0.0",
+    "description": "梦女专属系统：全新字卡聊天、长文折叠、精致主题、独立API配置、日记本系统。",
     "minimum_client_version": "1.11.0"
 }
