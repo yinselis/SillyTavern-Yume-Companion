@@ -1,11 +1,11 @@
 const MODULE_NAME = 'yume-companion';
 
-// 默认全局设置（API等）
+// 默认全局设置
 const defaultSettings = {
     showFloat: true, floatIcon: '', fabX: '', fabY: '', anniversary: '',
     apiUrl: '', apiKey: '', apiModel: '',
-    theme: 'dark', // 全局主题设置
-    chars: {}      // 核心：所有角色数据存储在这里
+    theme: 'dark', opacity: 0.95, // 新增不透明度
+    chars: {}      
 };
 
 let settings = {};
@@ -14,28 +14,23 @@ let currentCharId = null;
 
 // ====== 1. 核心数据管理 ======
 
-// 获取当前角色的专属数据
 function getCharData() {
     const context = SillyTavern.getContext();
     if (!context.characterId) return null;
     
     if (!settings.chars) settings.chars = {};
     
-    // 初始化当前角色数据
     if (!settings.chars[context.characterId]) {
         settings.chars[context.characterId] = {
             birthday: '', mbti: '',
             periodStart: '', periodEnd: '', periodCycle: 28, 
             randomLetterProb: 0, 
-            diary: [], 
-            letters: [], 
-            pendingLetters: [],
-            wordCards: ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边", "乖，我在", "今天辛苦啦", "摸摸头", "早点睡", "我爱你"], // 默认字卡
-            wordCardChat: [] // 字卡聊天记录
+            diary: [], letters: [], pendingLetters: [],
+            wordCards: ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边", "乖，我在", "今天辛苦啦", "摸摸头", "早点睡", "我爱你"],
+            wordCardChat: [] 
         };
     }
     
-    // 兼容老数据，补充字卡字段
     const data = settings.chars[context.characterId];
     if (!data.wordCards) data.wordCards = ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边", "乖，我在", "今天辛苦啦", "摸摸头", "早点睡", "我爱你"];
     if (!data.wordCardChat) data.wordCardChat = [];
@@ -47,7 +42,6 @@ function loadSettings() {
     const context = SillyTavern.getContext();
     if (!context.extensionSettings[MODULE_NAME]) context.extensionSettings[MODULE_NAME] = {};
     settings = context.extensionSettings[MODULE_NAME];
-    // 补全默认值
     for (const key in defaultSettings) {
         if (settings[key] === undefined) settings[key] = defaultSettings[key];
     }
@@ -59,17 +53,10 @@ function migrateOldData() {
         if (!settings.chars) settings.chars = {};
         if (!settings.chars['default_migrated']) {
             settings.chars['default_migrated'] = {
-                birthday: settings.birthday || '',
-                mbti: settings.mbti || '',
-                periodStart: settings.periodLast || '',
-                periodEnd: '',
-                periodCycle: settings.periodCycle || 28,
-                randomLetterProb: 5,
-                diary: settings.diary || [],
-                letters: settings.letters || [],
-                pendingLetters: [],
-                wordCards: ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边"],
-                wordCardChat: []
+                birthday: settings.birthday || '', mbti: settings.mbti || '',
+                periodStart: settings.periodLast || '', periodEnd: '', periodCycle: settings.periodCycle || 28,
+                randomLetterProb: 5, diary: settings.diary || [], letters: settings.letters || [],
+                pendingLetters: [], wordCards: ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边"], wordCardChat: []
             };
         }
         delete settings.diary; delete settings.letters; delete settings.birthday;
@@ -82,7 +69,6 @@ function migrateOldData() {
 // ====== 2. 初始化流程 ======
 jQuery(async () => {
     const context = SillyTavern.getContext();
-    // 致命警告：绝对不可破坏此结构
     context.eventSource.on(context.eventTypes.APP_READY, async () => {
         loadSettings();
         migrateOldData();
@@ -119,6 +105,10 @@ function refreshAllDataBindings() {
 
     applyTheme(settings.theme || 'dark');
     $('#ym_theme_select').val(settings.theme || 'dark');
+    
+    // 绑定透明度
+    $('#ym_opacity_slider').val(settings.opacity || 0.95);
+    $('#yume-main-modal').css('--ym-bg-opacity', settings.opacity || 0.95);
 
     $('#ym_birth').val(data.birthday);
     $('#ym_mbti').val(data.mbti);
@@ -137,7 +127,7 @@ function refreshAllDataBindings() {
 
 function applyTheme(themeName) {
     const modal = $('#yume-main-modal');
-    modal.removeClass('theme-light theme-dark theme-matcha theme-sakura theme-gothic');
+    modal.removeClass('theme-light theme-dark theme-matcha theme-sakura theme-gothic theme-ocean theme-cyber theme-sunset');
     modal.addClass(`theme-${themeName}`);
 }
 
@@ -182,9 +172,7 @@ async function initSidebarUI() {
             });
             if (res.ok) toastr.success('连接成功！独立后台 API 已激活。');
             else toastr.error('连接失败，请检查 URL 和 Key。');
-        } catch (e) {
-            toastr.error('请求出错，请检查网络。');
-        }
+        } catch (e) { toastr.error('请求出错，请检查网络。'); }
         btn.html('<i class="fa-solid fa-floppy-disk"></i> 保存并测试连接');
     });
 }
@@ -277,11 +265,22 @@ async function initModalUI() {
     bindCharData('ym_p_cycle', 'periodCycle');
     bindCharData('ym_random_letter_prob', 'randomLetterProb');
 
+    // 主题与透明度
     $('#ym_theme_select').on('change', (e) => {
         settings.theme = $(e.target).val();
         applyTheme(settings.theme);
         context.saveSettingsDebounced();
     });
+    $('#ym_opacity_slider').on('input', (e) => {
+        settings.opacity = parseFloat($(e.target).val());
+        $('#yume-main-modal').css('--ym-bg-opacity', settings.opacity);
+        context.saveSettingsDebounced();
+    });
+
+    // 导入导出数据
+    $('#ym_btn_export').on('click', handleExportData);
+    $('#ym_btn_import').on('click', () => $('#ym_file_import').click());
+    $('#ym_file_import').on('change', handleImportData);
 
     $('#ym_btn_write_letter').on('click', () => $('#yume-letter-writer').slideToggle());
     $('#ym_send_letter_btn').on('click', handleSendLetter);
@@ -292,9 +291,8 @@ async function initModalUI() {
 
     // 字卡绑定
     $('#ym_btn_manage_cards').on('click', () => {
-        const data = getCharData();
-        $('#yume-card-count').text(`当前拥有字卡：${data ? data.wordCards.length : 0} 句`);
         $('#yume-card-manager').slideToggle();
+        renderWordCardList();
     });
     $('#ym_save_cards_btn').on('click', handleImportCards);
     $('#ym_clear_cards_btn').on('click', handleClearCards);
@@ -308,7 +306,6 @@ function scrollToBottom(id) {
     if(el) el.scrollTop = el.scrollHeight;
 }
 
-// 全局折叠切换函数
 window.yumeToggleCollapse = function(btn) {
     const content = $(btn).prev('.yume-text-collapse');
     if (content.hasClass('expanded')) {
@@ -319,6 +316,40 @@ window.yumeToggleCollapse = function(btn) {
         $(btn).text('收起');
     }
 };
+
+// ====== 数据导入导出 ======
+function handleExportData() {
+    const data = getCharData(); if(!data) return;
+    const dataStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([dataStr], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `YumeData_${SillyTavern.getContext().name2 || 'Char'}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toastr.success('手账数据已导出！');
+}
+
+function handleImportData(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const importedData = JSON.parse(event.target.result);
+            const context = SillyTavern.getContext();
+            settings.chars[context.characterId] = importedData;
+            context.saveSettingsDebounced();
+            refreshAllDataBindings();
+            toastr.success('手账数据导入成功！', '🌸');
+        } catch(err) { 
+            toastr.error('导入失败：文件格式错误'); 
+        }
+        $('#ym_file_import').val(''); // reset
+    };
+    reader.readAsText(file);
+}
 
 function calculateAnniversary() {
     if (!settings.anniversary) { $('#yume-anniversary-text').text(''); return; }
@@ -418,7 +449,7 @@ window.yumeInteract = async function(type) {
     $('#yume-interact-text').text(`🌸 ${charName}：\n${reply}`);
 }
 
-// ====== 5. 信笺模块 (带折叠) ======
+// ====== 5. 信笺模块 ======
 function renderLetters() {
     const data = getCharData(); if(!data) return;
     const $c = $('#yume-letters-history'); 
@@ -429,7 +460,6 @@ function renderLetters() {
         const senderText = isUser ? `To TA - 寄出: ${l.date}` : `From TA - 收到: ${l.date}`;
         const formattedText = l.text.replace(/\n/g, '<br>');
         
-        // 判断是否需要折叠 (粗略按字符长度判断)
         const needsCollapse = l.text.length > 100;
         const toggleHtml = needsCollapse ? `<button class="yume-toggle-btn" onclick="yumeToggleCollapse(this)">展开阅读</button>` : '';
         const collapseClass = needsCollapse ? 'yume-text-collapse' : '';
@@ -509,7 +539,7 @@ async function handleChatProgress() {
     if(needSave) context.saveSettingsDebounced();
 }
 
-// ====== 6. 日记模块 (带折叠) ======
+// ====== 6. 日记模块 ======
 function renderDiary() {
     const data = getCharData(); if(!data) return;
     const $c = $('#yume-diary-history'); 
@@ -669,7 +699,6 @@ function handleSendWordCard() {
     renderWordCardChat();
     scrollToBottom('yume-card-chat-history');
 
-    // 延迟一点模拟回复
     setTimeout(() => {
         let reply = "（字卡库空空如也，快去添加吧~）";
         if (data.wordCards && data.wordCards.length > 0) {
@@ -683,6 +712,36 @@ function handleSendWordCard() {
     }, 600);
 }
 
+// 渲染字卡列表
+function renderWordCardList() {
+    const data = getCharData(); if(!data) return;
+    const $list = $('#yume-card-list');
+    $list.empty();
+    
+    $('#yume-card-count').text(`当前拥有字卡：${data.wordCards.length} 句`);
+    
+    if (data.wordCards.length === 0) {
+        $list.append('<div style="text-align:center; opacity:0.5; padding:10px;">暂无字卡</div>');
+        return;
+    }
+
+    data.wordCards.forEach((card, index) => {
+        $list.append(`
+            <div class="yume-card-list-item">
+                <span>${card}</span>
+                <button onclick="yumeDeleteWordCard(${index})" title="删除此条"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        `);
+    });
+}
+
+window.yumeDeleteWordCard = function(index) {
+    const data = getCharData(); if(!data) return;
+    data.wordCards.splice(index, 1);
+    SillyTavern.getContext().saveSettingsDebounced();
+    renderWordCardList();
+};
+
 function handleImportCards() {
     const data = getCharData(); if(!data) return;
     const text = $('#ym_card_import_input').val().trim();
@@ -694,7 +753,7 @@ function handleImportCards() {
     data.wordCards = data.wordCards.concat(newCards);
     SillyTavern.getContext().saveSettingsDebounced();
     $('#ym_card_import_input').val('');
-    $('#yume-card-count').text(`当前拥有字卡：${data.wordCards.length} 句`);
+    renderWordCardList();
     toastr.success(`成功导入 ${newCards.length} 句字卡！`, '📇 字卡更新');
 }
 
@@ -704,7 +763,7 @@ function handleClearCards() {
     data.wordCards = [];
     data.wordCardChat = [];
     SillyTavern.getContext().saveSettingsDebounced();
-    $('#yume-card-count').text(`当前拥有字卡：0 句`);
+    renderWordCardList();
     renderWordCardChat();
     toastr.success('字卡库已清空');
 }
@@ -726,7 +785,7 @@ async function handleAutoGenerateCards() {
         if (newCards.length > 0) {
             data.wordCards = data.wordCards.concat(newCards);
             SillyTavern.getContext().saveSettingsDebounced();
-            $('#yume-card-count').text(`当前拥有字卡：${data.wordCards.length} 句`);
+            renderWordCardList();
             toastr.success(`成功从记录中提取 ${newCards.length} 句新字卡！`, '✨ 提取成功');
         } else {
             toastr.error('提取失败，请重试');
