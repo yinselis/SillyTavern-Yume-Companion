@@ -18,7 +18,6 @@ let currentCharId = null;
 // ====== 辅助函数：判断是否为图片URL ======
 function isImageUrl(str) {
     if (typeof str !== 'string') return false;
-    // 匹配 http 开头，常见图片格式结尾的字符串（忽略大小写和参数）
     return /^https?:\/\/.*\.(jpeg|jpg|gif|png|webp|bmp)(?:\?.*)?$/i.test(str.trim());
 }
 
@@ -238,9 +237,12 @@ async function initSidebarUI() {
         btn.html('<i class="fa-solid fa-floppy-disk"></i> 保存并测试');
     });
 
-    // 🚑 【新增】：数据急救站逻辑
+    // 🚑 【修复版】：数据急救站逻辑（实时获取当前角色ID）
     $('#ym_btn_rescue_data').on('click', function() {
-        const currentId = context.characterId;
+        // 强制获取最新上下文
+        const liveContext = SillyTavern.getContext();
+        const currentId = liveContext.characterId || currentCharId;
+        
         if (!currentId) {
             toastr.warning('请先在酒馆主界面选中你要恢复的那个角色！');
             return;
@@ -263,10 +265,10 @@ async function initSidebarUI() {
         }
 
         if (bestData && maxItems > 0) {
-            if (confirm(`找到了包含 ${maxItems} 条记录的历史数据（这应该就是你丢失的那份）。\n\n是否强行覆盖给当前的 ${context.name2 || '角色'}？`)) {
+            if (confirm(`找到了包含 ${maxItems} 条记录的历史数据（这应该就是你丢失的那份）。\n\n是否强行覆盖给当前的 ${liveContext.name2 || '角色'}？`)) {
                 // 深拷贝数据，防止引用错误
                 settings.chars[currentId] = JSON.parse(JSON.stringify(bestData));
-                context.saveSettingsDebounced();
+                liveContext.saveSettingsDebounced();
                 refreshAllDataBindings();
                 toastr.success('🎉 数据已成功找回并绑定！请打开手账查看。');
             }
@@ -297,7 +299,6 @@ async function initModalUI() {
     const currentPath = import.meta.url.substring(0, import.meta.url.lastIndexOf('/'));
     $('body').append(await $.get(`${currentPath}/modal.html`));
     
-    // 【关键修复】：阻止弹窗内的点击/滑动事件穿透到背景，防止酒馆侧边栏自动关闭
     $('#yume-main-modal, #yume-manual-modal').on('mousedown touchstart click pointerdown', function(e) {
         e.stopPropagation();
     });
