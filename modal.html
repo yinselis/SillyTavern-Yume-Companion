@@ -177,41 +177,66 @@
 
 <div id="yume-floating-btn" title="长按拖动，点击打开"><span id="yume-float-text">🌸</span></div>
 
-<!-- 新增：使用手册独立弹窗 -->
-<div id="yume-manual-modal" style="display: none; position: fixed; top: 10vh; left: 50%; transform: translateX(-50%); width: 450px; max-width: 95vw; max-height: 80vh; background: var(--ym-bg, rgba(34,34,34,0.95)); color: var(--ym-text, #fff); border: 2px solid #ff9a9e; border-radius: 15px; z-index: 99999999; box-shadow: 0 10px 40px rgba(0,0,0,0.5); flex-direction: column; backdrop-filter: blur(15px);">
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px dashed rgba(255,154,158,0.5); flex-shrink: 0;">
-        <h3 style="margin: 0; color: #ff9a9e; font-size: 1.2em;"><i class="fa-solid fa-book-open"></i> 梦向陪伴 - 使用手册</h3>
-        <button id="yume-manual-close-btn" style="background: transparent; border: none; color: inherit; font-size: 1.3em; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div style="padding: 20px; overflow-y: auto; line-height: 1.7; font-size: 0.95em; display: flex; flex-direction: column; gap: 15px;">
+<!-- 修复版：使用手册独立弹窗 (完美自适应滚动 + 主题跟随) -->
+<div id="yume-manual-modal" class="theme-dark" style="display: none; position: fixed; top: 10vh; left: 50%; transform: translateX(-50%); width: 450px; max-width: 95vw; height: 80vh; background: var(--ym-bg, rgba(34,34,34,0.95)); color: var(--ym-text, #fff); border: 2px solid var(--ym-primary, #ff9a9e); border-radius: 15px; z-index: 99999999; box-shadow: 0 10px 40px rgba(0,0,0,0.5); backdrop-filter: blur(15px);">
+    <!-- 内部 Flex 容器，保证高度撑满 -->
+    <div style="display: flex; flex-direction: column; height: 100%;">
         
-        <div style="background: rgba(128,128,128,0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #ff9a9e;">
-            <h4 style="margin: 0 0 5px 0; color: #ff9a9e;">🌟 核心：无痕记忆注入</h4>
-            你在【档案】和【记事】中填写的所有内容（包括动态计算的纪念日天数、生理期状态），都会被静默注入到酒馆主聊天的最高优先级提示词中。TA会在日常聊天中自然地记住这些设定。
+        <!-- 头部 (不可压缩) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px dashed var(--ym-primary, #ff9a9e); flex-shrink: 0;">
+            <h3 style="margin: 0; color: var(--ym-primary, #ff9a9e); font-size: 1.2em;"><i class="fa-solid fa-book-open"></i> 梦向陪伴 - 使用手册</h3>
+            <button id="yume-manual-close-btn" style="background: transparent; border: none; color: inherit; font-size: 1.3em; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <div style="background: rgba(128,128,128,0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #a8d8ea;">
-            <h4 style="margin: 0 0 5px 0; color: #a8d8ea;">✨ 进阶：TA的主动惊喜 (省钱必看)</h4>
-            在扩展设置中有一个<b>“允许TA主动制造惊喜”</b>的开关。<br>
-            - <b>开启后：</b>TA会在聊天时，概率触发【突发长信】和【自动观察记事】，这会消耗额外的API请求。<br>
-            - <b>关闭后：</b>插件绝对不会在后台主动发起任何请求，完全不浪费你的API额度，仅保留基础的档案读取功能。
-        </div>
+        <!-- 滚动内容区 (自动占据剩余空间并允许滚动) -->
+        <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 20px; line-height: 1.7; font-size: 0.95em; display: flex; flex-direction: column; gap: 15px;">
+            
+            <div style="background: rgba(128,128,128,0.1); padding: 12px; border-radius: 8px; border-left: 4px solid var(--ym-primary, #ff9a9e);">
+                <h4 style="margin: 0 0 5px 0; color: var(--ym-primary, #ff9a9e);">🌟 核心：无痕记忆注入</h4>
+                你在【档案】和【记事】中填写的所有内容（包括动态计算的纪念日天数、生理期状态），都会被静默注入到酒馆主聊天的最高优先级提示词中。TA会在日常聊天中自然地记住这些设定。
+            </div>
 
-        <div style="background: rgba(128,128,128,0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #ffcc80;">
-            <h4 style="margin: 0 0 5px 0; color: #ffcc80;">📌 记事本与 25% 悄悄话机制</h4>
-            你在【记事】中写下的备忘录，不仅会被TA记住。当你在主聊天框发送消息时，系统有 <b>25% 的概率</b>向TA发送一条隐秘指令，让TA像突然想起来一样，主动在回复中提及你记事本里的内容！
-        </div>
+            <div style="background: rgba(128,128,128,0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #a8d8ea;">
+                <h4 style="margin: 0 0 5px 0; color: #a8d8ea;">✨ 进阶：TA的主动惊喜 (省钱必看)</h4>
+                在扩展设置中有一个<b>“允许TA主动制造惊喜”</b>的开关。<br>
+                - <b>开启后：</b>TA会在聊天时，概率触发【突发长信】和【自动观察记事】，这会消耗额外的API请求。<br>
+                - <b>关闭后：</b>插件绝对不会在后台主动发起任何请求，完全不浪费你的API额度，仅保留基础的档案读取功能。
+            </div>
 
-        <div style="background: rgba(128,128,128,0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #b39ddb;">
-            <h4 style="margin: 0 0 5px 0; color: #b39ddb;">💌 延时信笺 & 📖 日记偷看</h4>
-            - <b>信笺：</b>递交信件后，TA不会立刻回复，而是在你们聊了几句之后，结合刚才的聊天内容给你写一封回信。<br>
-            - <b>日记：</b>点击“偷看TA的日记”，TA会为你写下一篇专属的私密日记。
-        </div>
+            <div style="background: rgba(128,128,128,0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #ffcc80;">
+                <h4 style="margin: 0 0 5px 0; color: #ffcc80;">📌 记事本与 25% 悄悄话机制</h4>
+                你在【记事】中写下的备忘录，不仅会被TA记住。当你在主聊天框发送消息时，系统有 <b>25% 的概率</b>向TA发送一条隐秘指令，让TA像突然想起来一样，主动在回复中提及你记事本里的内容！
+            </div>
 
-        <div style="background: rgba(128,128,128,0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #81c784;">
-            <h4 style="margin: 0 0 5px 0; color: #81c784;">🔌 强烈建议：配置独立 API</h4>
-            在扩展设置中配置独立API（如便宜的 gpt-4o-mini）。配置后，插件的所有后台生成（互动、信笺、日记、字卡提取）都会走这条独立通道，<b>既能大幅省钱，又能避免污染酒馆主聊天的上下文！</b>
-        </div>
+            <div style="background: rgba(128,128,128,0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #b39ddb;">
+                <h4 style="margin: 0 0 5px 0; color: #b39ddb;">💌 延时信笺 & 📖 日记偷看</h4>
+                - <b>信笺：</b>递交信件后，TA不会立刻回复，而是在你们聊了几句之后，结合刚才的聊天内容给你写一封回信。<br>
+                - <b>日记：</b>点击“偷看TA的日记”，TA会为你写下一篇专属的私密日记。
+            </div>
 
+            <div style="background: rgba(128,128,128,0.1); padding: 12px; border-radius: 8px; border-left: 4px solid #81c784;">
+                <h4 style="margin: 0 0 5px 0; color: #81c784;">🔌 强烈建议：配置独立 API</h4>
+                在扩展设置中配置独立API（如便宜的 gpt-4o-mini）。配置后，插件的所有后台生成（互动、信笺、日记、字卡提取）都会走这条独立通道，<b>既能大幅省钱，又能避免污染酒馆主聊天的上下文！</b>
+            </div>
+
+        </div>
     </div>
 </div>
+
+<!-- 自动同步主题颜色的微型脚本 -->
+<script>
+    (function() {
+        const mainModal = document.getElementById('yume-main-modal');
+        const manualModal = document.getElementById('yume-manual-modal');
+        if (mainModal && manualModal) {
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.attributeName === 'class') {
+                        manualModal.className = mainModal.className;
+                    }
+                });
+            });
+            observer.observe(mainModal, { attributes: true });
+        }
+    })();
+</script>

@@ -49,19 +49,19 @@
     --ym-tab-bg-sunset: rgba(255, 112, 67, 0.2);
 }
 
-/* ====== 主题应用 ====== */
-#yume-main-modal {
+/* ====== 主题应用 (同时作用于主面板和手册弹窗) ====== */
+#yume-main-modal, #yume-manual-modal {
     --ym-bg: var(--ym-bg-dark); --ym-text: var(--ym-text-dark); 
     --ym-border: var(--ym-border-dark); --ym-tab-bg: var(--ym-tab-bg-dark);
     --ym-primary: #ff9a9e; --ym-letter-bg: #fdfaf6; --ym-letter-text: #5c4b41;
 }
-#yume-main-modal.theme-light { --ym-bg: var(--ym-bg-light); --ym-text: var(--ym-text-light); --ym-border: var(--ym-border-light); --ym-tab-bg: var(--ym-tab-bg-light); --ym-primary: #ff9a9e; --ym-letter-bg: #fff; --ym-letter-text: #333; }
-#yume-main-modal.theme-matcha { --ym-bg: var(--ym-bg-matcha); --ym-text: var(--ym-text-matcha); --ym-border: var(--ym-border-matcha); --ym-tab-bg: var(--ym-tab-bg-matcha); --ym-primary: #7ea87e; --ym-letter-bg: #f9fbf7; --ym-letter-text: #2f3e2f; }
-#yume-main-modal.theme-sakura { --ym-bg: var(--ym-bg-sakura); --ym-text: var(--ym-text-sakura); --ym-border: var(--ym-border-sakura); --ym-tab-bg: var(--ym-tab-bg-sakura); --ym-primary: #f48fb1; --ym-letter-bg: #fff0f5; --ym-letter-text: #5c3a4d; }
-#yume-main-modal.theme-gothic { --ym-bg: var(--ym-bg-gothic); --ym-text: var(--ym-text-gothic); --ym-border: var(--ym-border-gothic); --ym-tab-bg: var(--ym-tab-bg-gothic); --ym-primary: #8a0303; --ym-letter-bg: #1a1a1c; --ym-letter-text: #d3d3d3; }
-#yume-main-modal.theme-ocean { --ym-bg: var(--ym-bg-ocean); --ym-text: var(--ym-text-ocean); --ym-border: var(--ym-border-ocean); --ym-tab-bg: var(--ym-tab-bg-ocean); --ym-primary: #0277bd; --ym-letter-bg: #0a192f; --ym-letter-text: #81d4fa; }
-#yume-main-modal.theme-cyber { --ym-bg: var(--ym-bg-cyber); --ym-text: var(--ym-text-cyber); --ym-border: var(--ym-border-cyber); --ym-tab-bg: var(--ym-tab-bg-cyber); --ym-primary: #d500f9; --ym-letter-bg: #09090e; --ym-letter-text: #00e5ff; }
-#yume-main-modal.theme-sunset { --ym-bg: var(--ym-bg-sunset); --ym-text: var(--ym-text-sunset); --ym-border: var(--ym-border-sunset); --ym-tab-bg: var(--ym-tab-bg-sunset); --ym-primary: #ff7043; --ym-letter-bg: #2e151b; --ym-letter-text: #ffcc80; }
+#yume-main-modal.theme-light, #yume-manual-modal.theme-light { --ym-bg: var(--ym-bg-light); --ym-text: var(--ym-text-light); --ym-border: var(--ym-border-light); --ym-tab-bg: var(--ym-tab-bg-light); --ym-primary: #ff9a9e; --ym-letter-bg: #fff; --ym-letter-text: #333; }
+#yume-main-modal.theme-matcha, #yume-manual-modal.theme-matcha { --ym-bg: var(--ym-bg-matcha); --ym-text: var(--ym-text-matcha); --ym-border: var(--ym-border-matcha); --ym-tab-bg: var(--ym-tab-bg-matcha); --ym-primary: #7ea87e; --ym-letter-bg: #f9fbf7; --ym-letter-text: #2f3e2f; }
+#yume-main-modal.theme-sakura, #yume-manual-modal.theme-sakura { --ym-bg: var(--ym-bg-sakura); --ym-text: var(--ym-text-sakura); --ym-border: var(--ym-border-sakura); --ym-tab-bg: var(--ym-tab-bg-sakura); --ym-primary: #f48fb1; --ym-letter-bg: #fff0f5; --ym-letter-text: #5c3a4d; }
+#yume-main-modal.theme-gothic, #yume-manual-modal.theme-gothic { --ym-bg: var(--ym-bg-gothic); --ym-text: var(--ym-text-gothic); --ym-border: var(--ym-border-gothic); --ym-tab-bg: var(--ym-tab-bg-gothic); --ym-primary: #8a0303; --ym-letter-bg: #1a1a1c; --ym-letter-text: #d3d3d3; }
+#yume-main-modal.theme-ocean, #yume-manual-modal.theme-ocean { --ym-bg: var(--ym-bg-ocean); --ym-text: var(--ym-text-ocean); --ym-border: var(--ym-border-ocean); --ym-tab-bg: var(--ym-tab-bg-ocean); --ym-primary: #0277bd; --ym-letter-bg: #0a192f; --ym-letter-text: #81d4fa; }
+#yume-main-modal.theme-cyber, #yume-manual-modal.theme-cyber { --ym-bg: var(--ym-bg-cyber); --ym-text: var(--ym-text-cyber); --ym-border: var(--ym-border-cyber); --ym-tab-bg: var(--ym-tab-bg-cyber); --ym-primary: #d500f9; --ym-letter-bg: #09090e; --ym-letter-text: #00e5ff; }
+#yume-main-modal.theme-sunset, #yume-manual-modal.theme-sunset { --ym-bg: var(--ym-bg-sunset); --ym-text: var(--ym-text-sunset); --ym-border: var(--ym-border-sunset); --ym-tab-bg: var(--ym-tab-bg-sunset); --ym-primary: #ff7043; --ym-letter-bg: #2e151b; --ym-letter-text: #ffcc80; }
 
 /* ====== 基础布局 ====== */
 #yume-floating-btn {
