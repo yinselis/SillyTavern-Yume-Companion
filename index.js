@@ -4,7 +4,9 @@ const MODULE_NAME = 'yume-companion';
 const defaultSettings = {
     showFloat: true, floatIcon: '', fabX: '', fabY: '', anniversary: '',
     apiUrl: '', apiKey: '', apiModel: '',
-    theme: 'dark', opacity: 0.95, // 新增不透明度
+    theme: 'dark', opacity: 0.95, 
+    enableInjection: true, // 新增：是否注入酒馆记忆
+    customCss: '',         // 新增：自定义CSS
     chars: {}      
 };
 
@@ -17,9 +19,7 @@ let currentCharId = null;
 function getCharData() {
     const context = SillyTavern.getContext();
     if (!context.characterId) return null;
-    
     if (!settings.chars) settings.chars = {};
-    
     if (!settings.chars[context.characterId]) {
         settings.chars[context.characterId] = {
             birthday: '', mbti: '',
@@ -30,11 +30,9 @@ function getCharData() {
             wordCardChat: [] 
         };
     }
-    
     const data = settings.chars[context.characterId];
     if (!data.wordCards) data.wordCards = ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边", "乖，我在", "今天辛苦啦", "摸摸头", "早点睡", "我爱你"];
     if (!data.wordCardChat) data.wordCardChat = [];
-    
     return data;
 }
 
@@ -62,7 +60,6 @@ function migrateOldData() {
         delete settings.diary; delete settings.letters; delete settings.birthday;
         delete settings.mbti; delete settings.vibe; delete settings.periodLast;
         context.saveSettingsDebounced();
-        console.log('[Yume] 旧版本数据已迁移至 default_migrated');
     }
 }
 
@@ -72,6 +69,7 @@ jQuery(async () => {
     context.eventSource.on(context.eventTypes.APP_READY, async () => {
         loadSettings();
         migrateOldData();
+        applyCustomCss(); // 应用自定义CSS
         await initSidebarUI();
         await initModalUI();
         
@@ -105,8 +103,6 @@ function refreshAllDataBindings() {
 
     applyTheme(settings.theme || 'dark');
     $('#ym_theme_select').val(settings.theme || 'dark');
-    
-    // 绑定透明度
     $('#ym_opacity_slider').val(settings.opacity || 0.95);
     $('#yume-main-modal').css('--ym-bg-opacity', settings.opacity || 0.95);
 
@@ -131,6 +127,16 @@ function applyTheme(themeName) {
     modal.addClass(`theme-${themeName}`);
 }
 
+// 动态注入自定义CSS
+function applyCustomCss() {
+    let styleTag = $('#yume-custom-css-block');
+    if (styleTag.length === 0) {
+        styleTag = $('<style id="yume-custom-css-block"></style>');
+        $('head').append(styleTag);
+    }
+    styleTag.html(settings.customCss || '');
+}
+
 // ====== 3. UI 初始化与事件绑定 ======
 async function initSidebarUI() {
     const context = SillyTavern.getContext();
@@ -148,9 +154,19 @@ async function initSidebarUI() {
     };
 
     bindSetting('ym_setting_float', 'showFloat', true, () => $('#yume-floating-btn').css('display', settings.showFloat ? 'flex' : 'none'));
+    bindSetting('ym_setting_inject', 'enableInjection', true, updateProfileInjection); // 绑定注入开关
     bindSetting('ym_float_icon', 'floatIcon', false, updateFloatingIcon);
     bindSetting('ym_anniversary', 'anniversary', false, () => { calculateAnniversary(); updateProfileInjection(); });
     
+    // 自定义CSS绑定
+    $('#ym_custom_css').val(settings.customCss || '');
+    $('#ym_btn_save_css').on('click', () => {
+        settings.customCss = $('#ym_custom_css').val();
+        context.saveSettingsDebounced();
+        applyCustomCss();
+        toastr.success('自定义CSS已应用！');
+    });
+
     bindSetting('ym_api_url', 'apiUrl');
     bindSetting('ym_api_key', 'apiKey');
     bindSetting('ym_api_model', 'apiModel');
@@ -265,7 +281,6 @@ async function initModalUI() {
     bindCharData('ym_p_cycle', 'periodCycle');
     bindCharData('ym_random_letter_prob', 'randomLetterProb');
 
-    // 主题与透明度
     $('#ym_theme_select').on('change', (e) => {
         settings.theme = $(e.target).val();
         applyTheme(settings.theme);
@@ -277,7 +292,6 @@ async function initModalUI() {
         context.saveSettingsDebounced();
     });
 
-    // 导入导出数据
     $('#ym_btn_export').on('click', handleExportData);
     $('#ym_btn_import').on('click', () => $('#ym_file_import').click());
     $('#ym_file_import').on('change', handleImportData);
@@ -289,7 +303,6 @@ async function initModalUI() {
     $('#ym_save_diary_btn').on('click', handleSaveDiary);
     $('#ym_btn_ai_diary').on('click', handleAIDiary);
 
-    // 字卡绑定
     $('#ym_btn_manage_cards').on('click', () => {
         $('#yume-card-manager').slideToggle();
         renderWordCardList();
@@ -346,7 +359,7 @@ function handleImportData(e) {
         } catch(err) { 
             toastr.error('导入失败：文件格式错误'); 
         }
-        $('#ym_file_import').val(''); // reset
+        $('#ym_file_import').val(''); 
     };
     reader.readAsText(file);
 }
@@ -430,14 +443,22 @@ async function callYumeAI(taskPrompt) {
     }
 }
 
+// 全新互动选项
 window.yumeInteract = async function(type) {
-    const charName = SillyTavern.getContext().name2 || '伴侣';
+    const context = SillyTavern.getContext();
+    const charName = context.name2 || '伴侣';
+    const userName = context.name1 || '我';
+    
     const acts = {
-        'poke': `用手指轻轻戳了戳 ${charName} 的脸颊`,
-        'hug': `突然扑进 ${charName} 的怀里求抱抱撒娇`,
-        'sleep': `拉了拉 ${charName} 的衣角，想要TA哄睡`,
-        'vent': `靠在 ${charName} 肩膀上，说自己心情很差`
+        'pet': `${userName} 轻轻摸了摸 ${charName} 的头`,
+        'hug': `${userName} 主动上前抱了一下 ${charName}`,
+        'hold_hands': `${userName} 悄悄牵起了 ${charName} 的手`,
+        'poke': `${userName} 用手指调皮地戳了戳 ${charName} 的脸颊`,
+        'kiss': `${userName} 凑过去在 ${charName} 脸上亲了一口`,
+        'spoil': `${userName} 拉着 ${charName} 的衣角软糯地撒了个娇`,
+        'intimate': `${userName} 与 ${charName} 紧紧相拥，气氛变得缠绵而暧昧`
     };
+    
     $('#yume-interact-result').show();
     $('#yume-interact-text').text('');
     $('#yume-interact-loading').show();
@@ -712,7 +733,6 @@ function handleSendWordCard() {
     }, 600);
 }
 
-// 渲染字卡列表
 function renderWordCardList() {
     const data = getCharData(); if(!data) return;
     const $list = $('#yume-card-list');
@@ -794,17 +814,27 @@ async function handleAutoGenerateCards() {
     });
 }
 
-// ====== 8. 记忆注入 ======
+// ====== 8. 彻底重构的记忆注入 (修复AI认知问题) ======
 function updateProfileInjection() {
-    const data = getCharData(); if(!data) return;
     const context = SillyTavern.getContext();
     
+    // 1. 如果用户关闭了注入开关，则清空注入词并退出
+    if (!settings.enableInjection) {
+        context.setExtensionPrompt('yume_profile', '', 4, 4, false, 0);
+        return;
+    }
+
+    const data = getCharData(); if(!data) return;
     if (!data.birthday && !data.periodStart && data.diary.length === 0) return;
 
-    const publicDiaries = data.diary.filter(d => d.author === 'user' && d.isPublic).slice(-2);
-    const diaryText = publicDiaries.length ? `\n- 最近的日记心情：${publicDiaries.map(d => d.text).join('；')}` : '';
+    // 2. 明确获取用户的名字，防止AI搞混
+    const userName = context.name1 || '用户';
 
-    const prompt = `[伴侣绝密档案：\n- 生日：${data.birthday || '未知'}\n- 生理期状态：${currentPeriodStatusText} ${diaryText}\n请在日常对话中自然体现对上述信息的了解，并主动关怀。]`;
+    const publicDiaries = data.diary.filter(d => d.author === 'user' && d.isPublic).slice(-2);
+    const diaryText = publicDiaries.length ? `\n- ${userName}最近的日记心情：${publicDiaries.map(d => d.text).join('；')}` : '';
+
+    // 3. 彻底重写 Prompt，让 AI 明确知道这是属于“User”的信息
+    const prompt = `[系统提示：以下是关于 ${userName} 的当前状态，请在对话中自然体现对这些信息的了解与关怀：\n- ${userName}的生日：${data.birthday || '未知'}\n- ${userName}的生理期状态：${currentPeriodStatusText} ${diaryText}]`;
 
     context.setExtensionPrompt('yume_profile', prompt, 4, 4, false, 0);
 }

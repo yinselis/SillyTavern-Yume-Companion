@@ -67,12 +67,23 @@
 
         <!-- 2. 互动 -->
         <div id="yume-tab-interact" class="yume-tab-pane">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                <button class="yume-btn-outline" onclick="yumeInteract('poke')">👉 戳脸颊</button>
-                <button class="yume-btn-outline" onclick="yumeInteract('hug')">🫂 求抱抱</button>
-                <button class="yume-btn-outline" onclick="yumeInteract('sleep')">🛌 哄睡觉</button>
-                <button class="yume-btn-outline" onclick="yumeInteract('vent')">🌧️ 倒苦水</button>
+            <div style="text-align: center; margin-bottom: 15px;">
+                <div style="font-size: 3em; animation: pulse 2s infinite;">💖</div>
+                <div style="font-size: 0.85em; opacity: 0.7; margin-top: 5px;">触碰屏幕，传递你的心意</div>
             </div>
+            
+            <!-- 完美还原的 7 个互动按钮 -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <button class="yume-btn-outline" onclick="yumeInteract('pet')">👋 摸摸头</button>
+                <button class="yume-btn-outline" onclick="yumeInteract('hug')">🫂 抱一下</button>
+                <button class="yume-btn-outline" onclick="yumeInteract('hold_hands')">🤝 牵手手</button>
+                <button class="yume-btn-outline" onclick="yumeInteract('poke')">👉 戳戳脸</button>
+                <button class="yume-btn-outline" onclick="yumeInteract('kiss')">💋 亲一口</button>
+                <button class="yume-btn-outline" onclick="yumeInteract('spoil')">🥺 撒个娇</button>
+                <!-- 缠绵按钮横跨两列 -->
+                <button class="yume-btn-outline" style="grid-column: span 2; border-color: #ff5a5f; color: #ff5a5f;" onclick="yumeInteract('intimate')">🔥 缠绵</button>
+            </div>
+            
             <div id="yume-interact-result" style="display:none; background: rgba(128,128,128,0.1); border-radius: 12px; padding: 15px; min-height: 100px;">
                 <div id="yume-interact-loading" style="text-align:center; color:var(--ym-primary); display:none;"><i class="fa-solid fa-spinner fa-spin"></i> TA正在靠近...</div>
                 <div id="yume-interact-text" style="line-height: 1.6;"></div>
