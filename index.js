@@ -6,6 +6,7 @@ const defaultSettings = {
     apiUrl: '', apiKey: '', apiModel: '',
     theme: 'dark', opacity: 0.95,
     enableInjection: true, // 记忆注入开关
+    enableProactive: false, // 新增：主动制造惊喜开关 (默认关闭，省钱)
     customCss: '',         
     chars: {}      
 };
@@ -29,14 +30,14 @@ function getCharData() {
             diary: [], letters: [], pendingLetters: [],
             wordCards: ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边", "乖，我在", "今天辛苦啦", "摸摸头", "早点睡", "我爱你"],
             wordCardChat: [],
-            notes: [] // 新增：记事本数据
+            notes: [] 
         };
     }
     const data = settings.chars[context.characterId];
     if (data.anniversary === undefined) data.anniversary = '';
     if (!data.wordCards) data.wordCards = ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边"];
     if (!data.wordCardChat) data.wordCardChat = [];
-    if (!data.notes) data.notes = []; // 兼容旧数据
+    if (!data.notes) data.notes = []; 
     return data;
 }
 
@@ -73,7 +74,7 @@ jQuery(async () => {
         
         context.eventSource.on(context.eventTypes.CHAT_CHANGED, handleChatChange);
         context.eventSource.on(context.eventTypes.MESSAGE_RECEIVED, handleChatProgress);
-        context.eventSource.on(context.eventTypes.MESSAGE_SENT, handleUserMessageSent); // 监听用户发送消息，触发25%概率
+        context.eventSource.on(context.eventTypes.MESSAGE_SENT, handleUserMessageSent); 
         
         handleChatChange();
     });
@@ -157,8 +158,12 @@ async function initSidebarUI() {
         });
     };
 
+    // 使用手册弹窗绑定
+    $('#ym_btn_manual').on('click', () => $('#yume-manual-modal').fadeIn(200));
+    
     bindSetting('ym_setting_float', 'showFloat', true, () => $('#yume-floating-btn').css('display', settings.showFloat ? 'flex' : 'none'));
     bindSetting('ym_setting_inject', 'enableInjection', true, () => updateProfileInjection(false));
+    bindSetting('ym_setting_proactive', 'enableProactive', true); // 绑定主动开关
     bindSetting('ym_float_icon', 'floatIcon', false, updateFloatingIcon);
     bindSetting('ym_float_size', 'floatSize', false, updateFloatingIcon);
     
@@ -292,7 +297,9 @@ async function initModalUI() {
             }, 100);
         }
     });
+    
     $('#yume-close-btn').on('click', () => $('#yume-main-modal').fadeOut(200));
+    $('#yume-manual-close-btn').on('click', () => $('#yume-manual-modal').fadeOut(200));
 
     $('.yume-tab').on('click', function() {
         $('.yume-tab').removeClass('active'); $(this).addClass('active');
@@ -346,7 +353,6 @@ async function initModalUI() {
     $('#ym_btn_import').on('click', () => $('#ym_file_import').click());
     $('#ym_file_import').on('change', handleImportData);
 
-    // 记事绑定
     $('#ym_btn_write_note').on('click', () => $('#yume-note-writer').slideToggle());
     $('#ym_save_note_btn').on('click', handleSaveNote);
 
@@ -508,7 +514,7 @@ window.yumeInteract = async function(type) {
     $('#yume-interact-text').text(`🌸 ${charName}：\n${reply}`);
 }
 
-// ====== 4.5 记事本模块 (新增) ======
+// ====== 4.5 记事本模块 ======
 function renderNotes() {
     const data = getCharData(); if(!data) return;
     const $c = $('#yume-notes-history'); 
@@ -555,13 +561,14 @@ window.yumeDeleteNote = function(id) {
     updateProfileInjection(false);
 };
 
-// ====== 5. 信笺模块 ======
+// ====== 5. 信笺模块 (增加删除功能) ======
 function renderLetters() {
     const data = getCharData(); if(!data) return;
     const $c = $('#yume-letters-history'); 
     $c.empty();
     
-    data.letters.forEach(l => {
+    data.letters.forEach((l, index) => {
+        if (!l.id) l.id = Date.now() + index; // 兼容旧数据，赋予唯一ID
         const isUser = l.type === 'user';
         const senderText = isUser ? `To TA - 寄出: ${l.date}` : `From TA - 收到: ${l.date}`;
         const formattedText = l.text.replace(/\n/g, '<br>');
@@ -572,13 +579,24 @@ function renderLetters() {
 
         $c.append(`
             <div class="yume-letter-card">
-                <div class="yume-letter-header">✉️ ${senderText}</div>
+                <div class="yume-letter-header">
+                    <span>✉️ ${senderText}</span>
+                    <button class="ym-btn-del" onclick="yumeDeleteLetter(${l.id})" title="销毁这封信"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
                 <div class="${collapseClass}">${formattedText}</div>
                 ${toggleHtml}
             </div>
         `);
     });
 }
+
+window.yumeDeleteLetter = function(id) {
+    if(!confirm('确定要销毁这封信笺吗？')) return;
+    const data = getCharData(); if(!data) return;
+    data.letters = data.letters.filter(l => l.id !== id);
+    SillyTavern.getContext().saveSettingsDebounced();
+    renderLetters();
+};
 
 async function handleSendLetter() {
     const data = getCharData(); if(!data) return;
@@ -588,7 +606,7 @@ async function handleSendLetter() {
     const delayTurns = parseInt($('#ym_letter_delay').val()) || 3;
     const readDepth = parseInt($('#ym_letter_depth').val()) || 10;
     
-    data.letters.push({ type: 'user', date: new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString(), text });
+    data.letters.push({ id: Date.now(), type: 'user', date: new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString(), text });
     
     if(!data.pendingLetters) data.pendingLetters = [];
     data.pendingLetters.push({ userText: text, remainingTurns: delayTurns, readDepth: readDepth });
@@ -602,13 +620,11 @@ async function handleSendLetter() {
     toastr.success(`信件已寄出！TA将在大约 ${delayTurns} 轮对话后回信。`, '💌 递交成功');
 }
 
-// 监听用户发送消息：触发 25% 悄悄话反应机制
 function handleUserMessageSent() {
     const data = getCharData(); if(!data) return;
     const userNotes = data.notes.filter(n => n.author === 'user');
     
     if (userNotes.length > 0 && Math.random() < 0.25) {
-        // 25% 概率触发，注入带有强制回应指令的 prompt
         updateProfileInjection(true);
     } else {
         updateProfileInjection(false);
@@ -621,11 +637,10 @@ async function handleChatProgress() {
     const chat = context.chat;
     let needSave = false;
 
-    // AI 回复后，重置悄悄话反应机制
     updateProfileInjection(false);
 
-    // AI 自动观察机制 (15% 概率)
-    if (Math.random() < 0.15 && chat.length > 3) {
+    // AI 自动观察机制 (仅在主动开关开启时触发)
+    if (settings.enableProactive && Math.random() < 0.15 && chat.length > 3) {
         const history = chat.slice(-6).map(m => `${m.is_user ? '我' : 'TA'}: ${m.mes}`).join('\n');
         const task = `结合刚才的聊天记录：\n${history}\n\n写一句简短的内心独白，记录你此刻的心情，或者对用户的观察。直接输出正文，不要带引号，不超过30个字。`;
         callYumeAI(task).then(reply => {
@@ -637,6 +652,7 @@ async function handleChatProgress() {
         });
     }
 
+    // 处理待回信队列 (用户主动触发的，不受主动开关限制)
     if (data.pendingLetters && data.pendingLetters.length > 0) {
         for (let i = data.pendingLetters.length - 1; i >= 0; i--) {
             let p = data.pendingLetters[i];
@@ -647,7 +663,7 @@ async function handleChatProgress() {
                 const task = `用户之前给你写了一封信：\n"${p.userText}"\n\n你们在这段时间里的聊天记录：\n${history}\n\n请你经过一段时间的思考后，结合你们刚聊的内容，给用户写一封回信。直接输出信件正文！`;
                 
                 callYumeAI(task).then(reply => {
-                    data.letters.push({ type: 'ai', date: new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString(), text: reply });
+                    data.letters.push({ id: Date.now(), type: 'ai', date: new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString(), text: reply });
                     renderLetters(); 
                     SillyTavern.getContext().saveSettingsDebounced();
                     toastr.success('信箱里有一封TA的新回信！', '💌 收到来信');
@@ -658,13 +674,14 @@ async function handleChatProgress() {
         }
     }
 
+    // 突发信笺机制 (仅在主动开关开启时触发)
     const prob = (data.randomLetterProb !== undefined ? parseInt(data.randomLetterProb) : 0) / 100;
-    if (prob > 0 && Math.random() < prob) {
+    if (settings.enableProactive && prob > 0 && Math.random() < prob) {
         const history = chat.slice(-10).map(m => `${m.is_user ? '我' : 'TA'}: ${m.mes}`).join('\n');
         const task = `结合刚才的聊天记录：\n${history}\n\n你突然有感而发，偷偷给用户写了一封长信。直接输出信件正文！`;
         
         callYumeAI(task).then(reply => {
-            data.letters.push({ type: 'ai', date: new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString(), text: reply });
+            data.letters.push({ id: Date.now(), type: 'ai', date: new Date().toLocaleDateString()+' '+new Date().toLocaleTimeString(), text: reply });
             renderLetters();
             SillyTavern.getContext().saveSettingsDebounced();
             toastr.success('TA似乎悄悄给你塞了一封信...', '💌 意外惊喜');
@@ -928,7 +945,7 @@ async function handleAutoGenerateCards() {
     });
 }
 
-// ====== 8. 记忆注入 (包含记事本悄悄话机制) ======
+// ====== 8. 记忆注入 ======
 function updateProfileInjection(forceReact = false) {
     const context = SillyTavern.getContext();
     
@@ -949,13 +966,11 @@ function updateProfileInjection(forceReact = false) {
         if (diff >= 0) anniText = `\n- ${userName}与你已经相伴了 ${diff} 天`;
     }
 
-    // 提取【用户】写的记事本内容
     const userNotes = data.notes.filter(n => n.author === 'user');
     const notesText = userNotes.length > 0 ? `\n- ${userName}留下的备忘录：${userNotes.map(n => n.text).join('；')}` : '';
 
     let prompt = `[系统提示：以下是关于 ${userName} 的绝对真实设定，请在对话中自然体现对这些信息的了解与关怀：\n- ${userName} 的生日：${data.birthday || '未知'}${anniText}\n- ${userName} 的生理期状态：${currentPeriodStatusText}\n- ${userName} 今日心情：${data.vibe || '平静'} ${diaryText}${notesText}]`;
 
-    // 如果触发了 25% 悄悄话反应，追加强制指令
     if (forceReact && userNotes.length > 0) {
         prompt += `\n[系统悄悄话：请在本次回复中，随机挑选一条上述的“用户备忘录”内容进行不经意的回应或提及。]`;
     }

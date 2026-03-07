@@ -1,4 +1,4 @@
-/* ====== 🎨 主题变量定义 (已将底色透明度改为1，完美适配透明度滑块) ====== */
+/* ====== 🎨 主题变量定义 (底色透明度为1，适配整体透明度滑块) ====== */
 :root {
     /* 1. 暗夜樱花 (默认) */
     --ym-bg-dark: rgba(34, 34, 34, 1);
@@ -142,7 +142,7 @@
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; border-radius: 4px 4px 0 0;
     background: repeating-linear-gradient(45deg, var(--ym-primary), var(--ym-primary) 10px, transparent 10px, transparent 20px, #8ec5fc 20px, #8ec5fc 30px, transparent 30px, transparent 40px);
 }
-.yume-letter-header { font-size: 0.85em; opacity: 0.7; margin-bottom: 10px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 5px; text-align: left; }
+.yume-letter-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85em; opacity: 0.7; margin-bottom: 10px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 5px; }
 
 /* ====== 📖 日记样式 ====== */
 .yume-diary-card { background: rgba(128,128,128,0.08); border-left: 4px solid var(--ym-primary); padding: 12px; border-radius: 8px; font-size: 0.95em; line-height: 1.5; display: flex; flex-direction: column; gap: 8px; }
@@ -164,7 +164,7 @@
 .yume-bubble-user { align-self: flex-end; background: var(--ym-primary); color: #fff; border-bottom-right-radius: 2px; }
 .yume-bubble-ai { align-self: flex-start; background: rgba(128,128,128,0.2); border-bottom-left-radius: 2px; }
 
-/* ====== 📌 记事本样式 (新增) ====== */
+/* ====== 📌 记事本样式 ====== */
 .yume-note-card {
     background: rgba(128,128,128,0.1);
     border-left: 3px solid var(--ym-primary);

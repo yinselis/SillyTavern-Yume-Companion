@@ -5,14 +5,30 @@
     </div>
     <div class="inline-drawer-content">
         <div class="settings_section">
+            
+            <!-- 使用手册按钮 -->
+            <button id="ym_btn_manual" class="menu_button" style="width: 100%; margin-bottom: 15px; border: 1px dashed #ff9a9e; color: #ff9a9e; background: rgba(255,154,158,0.1); font-weight: bold;">
+                <i class="fa-solid fa-book-open"></i> 📖 查看插件使用手册
+            </button>
+
             <div class="flex-container alignItemsCenter" style="margin-bottom: 5px;">
                 <input type="checkbox" id="ym_setting_float">
                 <label for="ym_setting_float">显示屏幕悬浮球</label>
             </div>
+            
             <div class="flex-container alignItemsCenter" style="margin-bottom: 5px;">
                 <input type="checkbox" id="ym_setting_inject">
-                <label for="ym_setting_inject">开启记忆注入 (将档案信息同步给酒馆AI)</label>
+                <label for="ym_setting_inject">开启记忆注入 (将档案同步给酒馆主聊天)</label>
             </div>
+            
+            <!-- 新增：主动功能开关 -->
+            <div class="flex-container alignItemsCenter" style="margin-bottom: 5px;">
+                <input type="checkbox" id="ym_setting_proactive">
+                <label for="ym_setting_proactive">允许TA主动制造惊喜 (耗费额外API)</label>
+            </div>
+            <small style="opacity: 0.7; display: block; margin-bottom: 10px; margin-left: 25px; line-height: 1.3;">
+                开启后，TA会在聊天时概率掉落“突发长信”和“自动观察记事”。关闭则绝对不主动在后台发请求，只保留基础档案读取，为您节省费用。
+            </small>
             
             <hr class="sysHR">
             
@@ -86,7 +102,7 @@
 }
 
 /* 7. 各种卡片 (日记、信笺、字卡管理器) */
-.yume-diary-card, .yume-letter-card, #yume-card-manager {
+.yume-diary-card, .yume-letter-card, #yume-card-manager, .yume-note-card {
     background: rgba(0, 0, 0, 0.6) !important;
     border-left: 4px solid #ffb7b2 !important; /* 左侧粗边框 */
     box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
@@ -113,12 +129,10 @@
             </div>
             <div class="yume-row-mini">
                 <label>模型 (Model)</label>
-                <!-- 文本框保留作为兜底，下拉框用于拉取后的选择 -->
                 <input type="text" id="ym_api_model" class="text_pole" placeholder="点击下方拉取，或手动输入">
                 <select id="ym_api_model_select" class="text_pole" style="display:none; margin-top: 5px; background: rgba(0,0,0,0.5);"></select>
             </div>
             
-            <!-- 拆分后的双按钮 -->
             <div style="display: flex; gap: 10px; margin-top: 10px;">
                 <button id="ym_btn_fetch_models" class="menu_button" style="flex: 1; border: 1px solid #a8d8ea; color: #a8d8ea; background: transparent;"><i class="fa-solid fa-rotate"></i> 拉取模型</button>
                 <button id="ym_btn_save_api" class="menu_button" style="flex: 1; border: 1px solid #ff9a9e; color: #ff9a9e; background: transparent;"><i class="fa-solid fa-floppy-disk"></i> 保存</button>
