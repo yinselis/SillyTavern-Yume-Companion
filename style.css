@@ -152,15 +152,19 @@
 .yume-diary-reply.ai-reply { align-self: flex-start; background: rgba(255, 154, 158, 0.15); border: 1px solid rgba(255, 154, 158, 0.3); color: var(--ym-primary); border-bottom-left-radius: 2px; }
 .ym-reply-box { display: flex; gap: 8px; margin-top: 5px; align-items: center; }
 
-/* ====== 📇 字卡系统样式 ====== */
+/* ====== 📇 字卡系统样式 (新增图片支持) ====== */
 .yume-card-list-item {
     display: flex; justify-content: space-between; align-items: center;
     background: rgba(128,128,128,0.15); padding: 8px 12px; border-radius: 6px; font-size: 0.9em;
 }
-.yume-card-list-item button { background: transparent; border: none; color: #ff5a5f; cursor: pointer; }
+.yume-card-list-item button { background: transparent; border: none; color: #ff5a5f; cursor: pointer; flex-shrink: 0; margin-left: 10px; }
+.yume-card-list-item img { max-height: 40px; border-radius: 4px; object-fit: cover; }
+
 .yume-bubble {
     padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 0.95em; line-height: 1.4; margin-bottom: 5px;
+    display: flex; flex-direction: column; gap: 5px;
 }
+.yume-bubble img { max-width: 100%; border-radius: 8px; object-fit: contain; margin-top: 2px; }
 .yume-bubble-user { align-self: flex-end; background: var(--ym-primary); color: #fff; border-bottom-right-radius: 2px; }
 .yume-bubble-ai { align-self: flex-start; background: rgba(128,128,128,0.2); border-bottom-left-radius: 2px; }
 

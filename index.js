@@ -15,6 +15,13 @@ let settings = {};
 let currentPeriodStatusText = '未知'; 
 let currentCharId = null;
 
+// ====== 辅助函数：判断是否为图片URL ======
+function isImageUrl(str) {
+    if (typeof str !== 'string') return false;
+    // 匹配 http 开头，常见图片格式结尾的字符串（忽略大小写和参数）
+    return /^https?:\/\/.*\.(jpeg|jpg|gif|png|webp|bmp)(?:\?.*)?$/i.test(str.trim());
+}
+
 // ====== 1. 核心数据管理 ======
 
 function getCharData() {
@@ -253,7 +260,7 @@ async function initModalUI() {
     const currentPath = import.meta.url.substring(0, import.meta.url.lastIndexOf('/'));
     $('body').append(await $.get(`${currentPath}/modal.html`));
     
-    // 【关键修复】：阻止弹窗内的点击事件穿透到背景，防止酒馆侧边栏自动关闭
+    // 【关键修复】：阻止弹窗内的点击/滑动事件穿透到背景，防止酒馆侧边栏自动关闭
     $('#yume-main-modal, #yume-manual-modal').on('mousedown touchstart click pointerdown', function(e) {
         e.stopPropagation();
     });
@@ -824,7 +831,7 @@ window.yumeAddReply = function(id, author, isInitial = false) {
     }
 };
 
-// ====== 7. 字卡系统 ======
+// ====== 7. 字卡系统 (支持图片与1~4条随机连发) ======
 function renderWordCardChat() {
     const data = getCharData(); if(!data) return;
     const $c = $('#yume-card-chat-history');
@@ -838,7 +845,16 @@ function renderWordCardChat() {
     data.wordCardChat.forEach(msg => {
         const isUser = msg.role === 'user';
         const cls = isUser ? 'yume-bubble-user' : 'yume-bubble-ai';
-        $c.append(`<div class="yume-bubble ${cls}">${msg.text.replace(/\n/g, '<br>')}</div>`);
+        
+        let content = msg.text;
+        // 如果是图片链接，直接渲染为 img 标签
+        if (isImageUrl(content)) {
+            content = `<img src="${content}" alt="图片字卡">`;
+        } else {
+            content = content.replace(/\n/g, '<br>');
+        }
+        
+        $c.append(`<div class="yume-bubble ${cls}">${content}</div>`);
     });
 }
 
@@ -847,22 +863,42 @@ function handleSendWordCard() {
     const text = $('#ym_card_chat_input').val().trim();
     if (!text) return;
 
+    // 1. 渲染用户发送的消息
     data.wordCardChat.push({ role: 'user', text: text });
     $('#ym_card_chat_input').val('');
     renderWordCardChat();
     scrollToBottom('yume-card-chat-history');
 
+    // 2. 准备 AI 回复
     setTimeout(() => {
-        let reply = "（字卡库空空如也，快去添加吧~）";
-        if (data.wordCards && data.wordCards.length > 0) {
-            const randomIndex = Math.floor(Math.random() * data.wordCards.length);
-            reply = data.wordCards[randomIndex];
+        if (!data.wordCards || data.wordCards.length === 0) {
+            data.wordCardChat.push({ role: 'ai', text: "（字卡库空空如也，快去添加吧~）" });
+            SillyTavern.getContext().saveSettingsDebounced();
+            renderWordCardChat();
+            scrollToBottom('yume-card-chat-history');
+            return;
         }
-        data.wordCardChat.push({ role: 'ai', text: reply });
-        SillyTavern.getContext().saveSettingsDebounced();
-        renderWordCardChat();
-        scrollToBottom('yume-card-chat-history');
-    }, 600);
+
+        // 随机决定这次连发几条 (1 到 4 条)
+        const replyCount = Math.floor(Math.random() * 4) + 1;
+        let currentDelay = 0;
+
+        // 循环设置定时器，实现“阶梯式”连发效果
+        for (let i = 0; i < replyCount; i++) {
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * data.wordCards.length);
+                const reply = data.wordCards[randomIndex];
+                data.wordCardChat.push({ role: 'ai', text: reply });
+                
+                SillyTavern.getContext().saveSettingsDebounced();
+                renderWordCardChat();
+                scrollToBottom('yume-card-chat-history');
+            }, currentDelay);
+            
+            // 下一条消息比上一条多延迟 600ms ~ 1200ms
+            currentDelay += Math.floor(Math.random() * 600) + 600;
+        }
+    }, 600); // 初始等待 0.6 秒
 }
 
 function renderWordCardList() {
@@ -878,9 +914,12 @@ function renderWordCardList() {
     }
 
     data.wordCards.forEach((card, index) => {
+        // 列表里如果是图片，显示小缩略图
+        let displayContent = isImageUrl(card) ? `<img src="${card}" alt="图片">` : `<span>${card}</span>`;
+        
         $list.append(`
             <div class="yume-card-list-item">
-                <span>${card}</span>
+                ${displayContent}
                 <button onclick="yumeDeleteWordCard(${index})" title="删除此条"><i class="fa-solid fa-xmark"></i></button>
             </div>
         `);

@@ -148,7 +148,7 @@
             <div id="yume-diary-history" class="ym-chat-list"></div>
         </div>
 
-        <!-- 5. 字卡系统 -->
+        <!-- 5. 字卡系统 (修改了提示词) -->
         <div id="yume-tab-cards" class="yume-tab-pane">
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px; flex-shrink: 0;">
                 <button id="ym_btn_manage_cards" class="yume-btn-outline" style="width: 48%; margin: 0; padding: 8px;">📇 管理字卡库</button>
@@ -158,7 +158,11 @@
             <div id="yume-card-manager" style="display:none; background: rgba(128,128,128,0.1); padding: 15px; border-radius: 12px; margin-bottom: 15px; flex-shrink: 0;">
                 <div id="yume-card-count" style="font-size: 0.85em; opacity: 0.8; margin-bottom: 10px;"></div>
                 <div id="yume-card-list" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 5px;"></div>
-                <textarea id="ym_card_import_input" class="text_pole" rows="3" placeholder="批量导入字卡，每行一句..."></textarea>
+                
+                <!-- 新增提示词 -->
+                <div style="font-size: 0.8em; color: var(--ym-primary); margin-bottom: 5px;">💡 支持文字或图片直链(http...jpg)</div>
+                
+                <textarea id="ym_card_import_input" class="text_pole" rows="3" placeholder="批量导入，每行一句或一个图片链接..."></textarea>
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                     <button id="ym_save_cards_btn" class="yume-btn" style="flex:1; margin:0; padding: 8px;">导入</button>
                     <button id="ym_clear_cards_btn" class="yume-btn-outline" style="flex:1; margin:0; padding: 8px; border-color: #ff5a5f; color: #ff5a5f;">清空</button>
@@ -177,18 +181,13 @@
 
 <div id="yume-floating-btn" title="长按拖动，点击打开"><span id="yume-float-text">🌸</span></div>
 
-<!-- 修复版：使用手册独立弹窗 (完美自适应滚动 + 主题跟随) -->
+<!-- 使用手册独立弹窗 (完美自适应滚动 + 主题跟随) -->
 <div id="yume-manual-modal" class="theme-dark" style="display: none; position: fixed; top: 10vh; left: 50%; transform: translateX(-50%); width: 450px; max-width: 95vw; height: 80vh; background: var(--ym-bg, rgba(34,34,34,0.95)); color: var(--ym-text, #fff); border: 2px solid var(--ym-primary, #ff9a9e); border-radius: 15px; z-index: 99999999; box-shadow: 0 10px 40px rgba(0,0,0,0.5); backdrop-filter: blur(15px);">
-    <!-- 内部 Flex 容器，保证高度撑满 -->
     <div style="display: flex; flex-direction: column; height: 100%;">
-        
-        <!-- 头部 (不可压缩) -->
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px dashed var(--ym-primary, #ff9a9e); flex-shrink: 0;">
             <h3 style="margin: 0; color: var(--ym-primary, #ff9a9e); font-size: 1.2em;"><i class="fa-solid fa-book-open"></i> 梦向陪伴 - 使用手册</h3>
             <button id="yume-manual-close-btn" style="background: transparent; border: none; color: inherit; font-size: 1.3em; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-xmark"></i></button>
         </div>
-
-        <!-- 滚动内容区 (自动占据剩余空间并允许滚动) -->
         <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 20px; line-height: 1.7; font-size: 0.95em; display: flex; flex-direction: column; gap: 15px;">
             
             <div style="background: rgba(128,128,128,0.1); padding: 12px; border-radius: 8px; border-left: 4px solid var(--ym-primary, #ff9a9e);">
