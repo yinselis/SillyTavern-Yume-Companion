@@ -6,7 +6,7 @@ const defaultSettings = {
     apiUrl: '', apiKey: '', apiModel: '',
     theme: 'dark', opacity: 0.95,
     enableInjection: true, // 记忆注入开关
-    enableProactive: false, // 新增：主动制造惊喜开关 (默认关闭，省钱)
+    enableProactive: false, // 主动制造惊喜开关
     customCss: '',         
     chars: {}      
 };
@@ -158,12 +158,11 @@ async function initSidebarUI() {
         });
     };
 
-    // 使用手册弹窗绑定
     $('#ym_btn_manual').on('click', () => $('#yume-manual-modal').fadeIn(200));
     
     bindSetting('ym_setting_float', 'showFloat', true, () => $('#yume-floating-btn').css('display', settings.showFloat ? 'flex' : 'none'));
     bindSetting('ym_setting_inject', 'enableInjection', true, () => updateProfileInjection(false));
-    bindSetting('ym_setting_proactive', 'enableProactive', true); // 绑定主动开关
+    bindSetting('ym_setting_proactive', 'enableProactive', true); 
     bindSetting('ym_float_icon', 'floatIcon', false, updateFloatingIcon);
     bindSetting('ym_float_size', 'floatSize', false, updateFloatingIcon);
     
@@ -254,6 +253,11 @@ async function initModalUI() {
     const currentPath = import.meta.url.substring(0, import.meta.url.lastIndexOf('/'));
     $('body').append(await $.get(`${currentPath}/modal.html`));
     
+    // 【关键修复】：阻止弹窗内的点击事件穿透到背景，防止酒馆侧边栏自动关闭
+    $('#yume-main-modal, #yume-manual-modal').on('mousedown touchstart click pointerdown', function(e) {
+        e.stopPropagation();
+    });
+
     const fab = $('#yume-floating-btn');
     if(!settings.showFloat) fab.hide();
     updateFloatingIcon();
@@ -561,14 +565,14 @@ window.yumeDeleteNote = function(id) {
     updateProfileInjection(false);
 };
 
-// ====== 5. 信笺模块 (增加删除功能) ======
+// ====== 5. 信笺模块 ======
 function renderLetters() {
     const data = getCharData(); if(!data) return;
     const $c = $('#yume-letters-history'); 
     $c.empty();
     
     data.letters.forEach((l, index) => {
-        if (!l.id) l.id = Date.now() + index; // 兼容旧数据，赋予唯一ID
+        if (!l.id) l.id = Date.now() + index; 
         const isUser = l.type === 'user';
         const senderText = isUser ? `To TA - 寄出: ${l.date}` : `From TA - 收到: ${l.date}`;
         const formattedText = l.text.replace(/\n/g, '<br>');
@@ -639,7 +643,6 @@ async function handleChatProgress() {
 
     updateProfileInjection(false);
 
-    // AI 自动观察机制 (仅在主动开关开启时触发)
     if (settings.enableProactive && Math.random() < 0.15 && chat.length > 3) {
         const history = chat.slice(-6).map(m => `${m.is_user ? '我' : 'TA'}: ${m.mes}`).join('\n');
         const task = `结合刚才的聊天记录：\n${history}\n\n写一句简短的内心独白，记录你此刻的心情，或者对用户的观察。直接输出正文，不要带引号，不超过30个字。`;
@@ -652,7 +655,6 @@ async function handleChatProgress() {
         });
     }
 
-    // 处理待回信队列 (用户主动触发的，不受主动开关限制)
     if (data.pendingLetters && data.pendingLetters.length > 0) {
         for (let i = data.pendingLetters.length - 1; i >= 0; i--) {
             let p = data.pendingLetters[i];
@@ -674,7 +676,6 @@ async function handleChatProgress() {
         }
     }
 
-    // 突发信笺机制 (仅在主动开关开启时触发)
     const prob = (data.randomLetterProb !== undefined ? parseInt(data.randomLetterProb) : 0) / 100;
     if (settings.enableProactive && prob > 0 && Math.random() < prob) {
         const history = chat.slice(-10).map(m => `${m.is_user ? '我' : 'TA'}: ${m.mes}`).join('\n');
