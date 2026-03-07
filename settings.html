@@ -9,10 +9,9 @@
                 <input type="checkbox" id="ym_setting_float">
                 <label for="ym_setting_float">显示屏幕悬浮球</label>
             </div>
-            <!-- 新增：记忆注入开关 -->
             <div class="flex-container alignItemsCenter" style="margin-bottom: 5px;">
                 <input type="checkbox" id="ym_setting_inject">
-                <label for="ym_setting_inject">开启记忆注入 (将生日/生理期等同步给酒馆AI)</label>
+                <label for="ym_setting_inject">开启记忆注入 (将档案信息同步给酒馆AI)</label>
             </div>
             
             <hr class="sysHR">
@@ -22,27 +21,87 @@
                 <input type="text" id="ym_float_icon" class="text_pole" placeholder="留空则显示默认🌸图标">
             </div>
             <div class="yume-row-mini">
-                <label>纪念日(哪天在一起的):</label>
-                <input type="date" id="ym_anniversary" class="text_pole">
+                <label>悬浮球大小 (默认55):</label>
+                <input type="number" id="ym_float_size" class="text_pole" placeholder="55" min="30" max="100">
             </div>
 
             <hr class="sysHR">
 
-            <!-- 新增：自定义 CSS -->
+            <!-- 终极版：自定义 CSS -->
             <details style="margin-bottom: 15px; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px;">
-                <summary style="cursor: pointer; color: #ff9a9e; font-weight: bold; outline: none;">🎨 自定义 CSS (高级美化)</summary>
+                <summary style="cursor: pointer; color: #ff9a9e; font-weight: bold; outline: none;">🎨 自定义 CSS (全方位主题美化)</summary>
                 <div style="margin-top: 10px;">
-                    <textarea id="ym_custom_css" class="text_pole" rows="5" placeholder="在此输入自定义CSS代码..."></textarea>
+                    <textarea id="ym_custom_css" class="text_pole" rows="8" placeholder="在此输入自定义CSS代码..."></textarea>
                     <button id="ym_btn_save_css" class="menu_button" style="width: 100%; margin-top: 5px; border: 1px solid #ff9a9e; color: #ff9a9e; background: transparent;">保存并应用 CSS</button>
-                    <div style="font-size: 0.8em; opacity: 0.7; margin-top: 8px; line-height: 1.4;">
-                        <b>参考代码 (设置背景图)：</b><br>
-                        <code style="user-select: all; display: block; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px; margin-top: 4px;">#yume-main-modal { background-image: url('你的图片链接') !important; background-size: cover !important; background-position: center !important; }</code>
-                    </div>
+                    
+                    <details style="margin-top: 10px;">
+                        <summary style="cursor: pointer; font-size: 0.85em; opacity: 0.8; color: #a8d8ea;">👉 点击查看【全套CSS模板】(可直接复制修改)</summary>
+                        <pre style="font-size: 0.75em; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; margin-top: 5px; line-height: 1.4; user-select: all; color: #ddd;">
+/* 1. 主面板背景与全局字体 */
+#yume-main-modal {
+    background-image: url('你的图床链接') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    border: 2px solid #ffb7b2 !important; /* 外边框颜色 */
+    color: #ffffff !important; /* 全局文字颜色 */
+    border-radius: 20px !important; /* 圆角大小 */
+}
+
+/* 2. 顶部标题栏 */
+.yume-modal-header {
+    background: rgba(0, 0, 0, 0.6) !important; /* 半透明黑底 */
+    border-bottom: 1px solid #ffb7b2 !important;
+}
+.yume-modal-header h3 { color: #ffb7b2 !important; } /* 标题颜色 */
+
+/* 3. 标签栏 (档案/互动/信笺...) */
+.yume-tabs { background: rgba(0, 0, 0, 0.4) !important; }
+.yume-tab { color: rgba(255,255,255,0.6) !important; } /* 未选中颜色 */
+.yume-tab.active {
+    color: #ffb7b2 !important; /* 选中颜色 */
+    border-bottom: 3px solid #ffb7b2 !important;
+    background: rgba(255, 183, 178, 0.2) !important;
+}
+
+/* 4. 输入框与下拉菜单 */
+.text_pole {
+    background: rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid rgba(255, 183, 178, 0.5) !important;
+    color: #fff !important;
+}
+
+/* 5. 空心按钮 (互动按钮、导出导入等) */
+.yume-btn-outline {
+    border: 1px solid #ffb7b2 !important;
+    color: #ffb7b2 !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+}
+.yume-btn-outline:hover { background: rgba(255, 183, 178, 0.3) !important; }
+
+/* 6. 实心按钮 (保存、发送等) */
+.yume-btn {
+    background: #ffb7b2 !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+/* 7. 各种卡片 (日记、信笺、字卡管理器) */
+.yume-diary-card, .yume-letter-card, #yume-card-manager {
+    background: rgba(0, 0, 0, 0.6) !important;
+    border-left: 4px solid #ffb7b2 !important; /* 左侧粗边框 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+}
+
+/* 8. 聊天气泡 (字卡互动) */
+.yume-bubble-user { background: #ffb7b2 !important; color: #fff !important; }
+.yume-bubble-ai { background: rgba(0,0,0,0.6) !important; border: 1px solid rgba(255,255,255,0.2) !important; }
+                        </pre>
+                    </details>
                 </div>
             </details>
 
             <h4 style="color: #ff9a9e; margin-bottom: 5px;">🔌 独立后台 API (可选)</h4>
-            <small style="opacity: 0.7; display: block; margin-bottom: 10px;">设置后，信笺、互动、日记将使用此独立API。留空则自动使用酒馆的“纯净生成通道”（不带任何世界书和格式污染）。</small>
+            <small style="opacity: 0.7; display: block; margin-bottom: 10px;">设置后，信笺、互动、日记将使用此独立API。留空则自动使用酒馆的“纯净生成通道”。</small>
             
             <div class="yume-row-mini">
                 <label>API URL (如: https://api.openai.com/v1)</label>

@@ -1,9 +1,10 @@
 const MODULE_NAME = 'yume-companion';
 
+// 默认全局设置
 const defaultSettings = {
-    showFloat: true, floatIcon: '', fabX: '', fabY: '', anniversary: '',
+    showFloat: true, floatIcon: '', floatSize: 55, fabX: '', fabY: '', 
     apiUrl: '', apiKey: '', apiModel: '',
-    theme: 'dark', 
+    theme: 'dark', opacity: 0.95,
     enableInjection: true, // 记忆注入开关
     customCss: '',         // 自定义CSS
     chars: {}      
@@ -13,12 +14,15 @@ let settings = {};
 let currentPeriodStatusText = '未知'; 
 let currentCharId = null;
 
+// ====== 1. 核心数据管理 ======
+
 function getCharData() {
     const context = SillyTavern.getContext();
     if (!context.characterId) return null;
     if (!settings.chars) settings.chars = {};
     if (!settings.chars[context.characterId]) {
         settings.chars[context.characterId] = {
+            anniversary: '', // 纪念日已实现 Char 分离
             birthday: '', mbti: '', vibe: '',
             periodStart: '', periodEnd: '', periodCycle: 28, 
             randomLetterProb: 0, 
@@ -28,6 +32,7 @@ function getCharData() {
         };
     }
     const data = settings.chars[context.characterId];
+    if (data.anniversary === undefined) data.anniversary = '';
     if (!data.wordCards) data.wordCards = ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边"];
     if (!data.wordCardChat) data.wordCardChat = [];
     return data;
@@ -42,10 +47,25 @@ function loadSettings() {
     }
 }
 
+function migrateOldData() {
+    const context = SillyTavern.getContext();
+    // 迁移旧版全局纪念日到当前角色（如果存在的话）
+    if (settings.anniversary && context.characterId) {
+        const data = getCharData();
+        if (data && !data.anniversary) {
+            data.anniversary = settings.anniversary;
+            delete settings.anniversary;
+            context.saveSettingsDebounced();
+        }
+    }
+}
+
+// ====== 2. 初始化流程 ======
 jQuery(async () => {
     const context = SillyTavern.getContext();
     context.eventSource.on(context.eventTypes.APP_READY, async () => {
         loadSettings();
+        migrateOldData();
         applyCustomCss();
         await initSidebarUI();
         await initModalUI();
@@ -68,6 +88,7 @@ function handleChatChange() {
     } else {
         $('#yume-modal-title').text(`🌸 梦向专属手账 (未选中角色)`);
         $('.yume-tab-pane input').val('');
+        $('#yume-anniversary-text').text('');
         $('#yume-letters-history').empty();
         $('#yume-diary-history').empty().append('<div style="padding:20px;text-align:center;opacity:0.5;">请先选择一个聊天对象</div>');
         $('#yume-card-chat-history').empty();
@@ -80,13 +101,18 @@ function refreshAllDataBindings() {
 
     applyTheme(settings.theme || 'dark');
     $('#ym_theme_select').val(settings.theme || 'dark');
+    
+    // 恢复透明度绑定
+    $('#ym_opacity_slider').val(settings.opacity !== undefined ? settings.opacity : 0.95);
+    $('#yume-main-modal').css('opacity', settings.opacity !== undefined ? settings.opacity : 0.95);
 
-    $('#ym_birth').val(data.birthday);
-    $('#ym_mbti').val(data.mbti);
-    $('#ym_vibe').val(data.vibe);
-    $('#ym_p_start').val(data.periodStart);
-    $('#ym_p_end').val(data.periodEnd);
-    $('#ym_p_cycle').val(data.periodCycle);
+    $('#ym_anniversary').val(data.anniversary || '');
+    $('#ym_birth').val(data.birthday || '');
+    $('#ym_mbti').val(data.mbti || '');
+    $('#ym_vibe').val(data.vibe || '');
+    $('#ym_p_start').val(data.periodStart || '');
+    $('#ym_p_end').val(data.periodEnd || '');
+    $('#ym_p_cycle').val(data.periodCycle || 28);
     $('#ym_random_letter_prob').val(data.randomLetterProb !== undefined ? data.randomLetterProb : 0);
 
     calculateAnniversary();
@@ -99,7 +125,7 @@ function refreshAllDataBindings() {
 
 function applyTheme(themeName) {
     const modal = $('#yume-main-modal');
-    modal.removeClass('theme-light theme-dark theme-matcha');
+    modal.removeClass('theme-light theme-dark theme-matcha theme-sakura theme-gothic theme-ocean theme-cyber theme-sunset');
     modal.addClass(`theme-${themeName}`);
 }
 
@@ -112,6 +138,7 @@ function applyCustomCss() {
     styleTag.html(settings.customCss || '');
 }
 
+// ====== 3. UI 初始化与事件绑定 ======
 async function initSidebarUI() {
     const context = SillyTavern.getContext();
     const currentPath = import.meta.url.substring(0, import.meta.url.lastIndexOf('/'));
@@ -130,7 +157,7 @@ async function initSidebarUI() {
     bindSetting('ym_setting_float', 'showFloat', true, () => $('#yume-floating-btn').css('display', settings.showFloat ? 'flex' : 'none'));
     bindSetting('ym_setting_inject', 'enableInjection', true, updateProfileInjection);
     bindSetting('ym_float_icon', 'floatIcon', false, updateFloatingIcon);
-    bindSetting('ym_anniversary', 'anniversary', false, () => { calculateAnniversary(); updateProfileInjection(); });
+    bindSetting('ym_float_size', 'floatSize', false, updateFloatingIcon); // 绑定悬浮窗大小
     
     $('#ym_custom_css').val(settings.customCss || '');
     $('#ym_btn_save_css').on('click', () => {
@@ -169,6 +196,15 @@ async function initSidebarUI() {
 function updateFloatingIcon() {
     const fab = $('#yume-floating-btn');
     const text = $('#yume-float-text');
+    const size = settings.floatSize || 55;
+    
+    // 应用自定义大小
+    fab.css({
+        'width': `${size}px`,
+        'height': `${size}px`,
+        'font-size': `${size * 0.45}px`
+    });
+
     if (settings.floatIcon && settings.floatIcon.trim() !== '') {
         fab.css('background-image', `url(${settings.floatIcon})`);
         text.hide();
@@ -216,6 +252,7 @@ async function initModalUI() {
     fab.on('click', () => { 
         if(!isDragging) {
             $('#yume-main-modal').fadeToggle(200);
+            calculateAnniversary(); // 每次打开重新计算天数
             setTimeout(() => {
                 const activeTab = $('.yume-tab.active').data('target');
                 if(activeTab === 'yume-tab-letters') scrollToBottom('yume-letters-history');
@@ -238,14 +275,17 @@ async function initModalUI() {
         }, 50);
     });
 
+    // 绑定当前角色的数据
     const bindCharData = (id, key) => {
         $(`#${id}`).on('input change', (e) => {
             const data = getCharData(); if(!data) return;
             data[key] = $(e.target).val();
             context.saveSettingsDebounced();
+            if(id === 'ym_anniversary') calculateAnniversary();
             if(id.startsWith('ym_p_')) calculatePeriod();
         });
     };
+    bindCharData('ym_anniversary', 'anniversary'); // 绑定角色独立纪念日
     bindCharData('ym_birth', 'birthday');
     bindCharData('ym_mbti', 'mbti');
     bindCharData('ym_vibe', 'vibe');
@@ -257,12 +297,19 @@ async function initModalUI() {
     // 绑定手动同步按钮
     $('#ym_btn_sync_profile').on('click', () => {
         updateProfileInjection();
-        toastr.success('记忆已强制同步给TA！', '🌸 同步成功');
+        toastr.success('记忆已强制同步给TA！', '🌸 保存成功');
     });
 
     $('#ym_theme_select').on('change', (e) => {
         settings.theme = $(e.target).val();
         applyTheme(settings.theme);
+        context.saveSettingsDebounced();
+    });
+
+    // 绑定透明度滑块
+    $('#ym_opacity_slider').on('input', (e) => {
+        settings.opacity = parseFloat($(e.target).val());
+        $('#yume-main-modal').css('opacity', settings.opacity);
         context.saveSettingsDebounced();
     });
 
@@ -340,9 +387,11 @@ function handleImportData(e) {
     reader.readAsText(file);
 }
 
+// 动态计算纪念日
 function calculateAnniversary() {
-    if (!settings.anniversary) { $('#yume-anniversary-text').text(''); return; }
-    const diff = Math.floor((new Date().setHours(0,0,0,0) - new Date(settings.anniversary).setHours(0,0,0,0)) / 86400000);
+    const data = getCharData();
+    if (!data || !data.anniversary) { $('#yume-anniversary-text').text(''); return; }
+    const diff = Math.floor((new Date().setHours(0,0,0,0) - new Date(data.anniversary).setHours(0,0,0,0)) / 86400000);
     $('#yume-anniversary-text').text(diff >= 0 ? `💕 已相伴 ${diff} 天` : `💕 距离相伴还有 ${Math.abs(diff)} 天`);
 }
 
@@ -668,7 +717,7 @@ window.yumeAddReply = function(id, author, isInitial = false) {
     }
 };
 
-// ====== 7. 找回的字卡系统 ======
+// ====== 7. 字卡系统 ======
 function renderWordCardChat() {
     const data = getCharData(); if(!data) return;
     const $c = $('#yume-card-chat-history');
@@ -790,25 +839,35 @@ async function handleAutoGenerateCards() {
     });
 }
 
-// ====== 8. 彻底重构的记忆注入 (最高优先级) ======
+// ====== 8. 彻底重构的记忆注入 (最高优先级 + 纪念日注入) ======
 function updateProfileInjection() {
     const context = SillyTavern.getContext();
     
+    // 如果用户关闭了注入开关，则清空注入词并退出
     if (!settings.enableInjection) {
         context.setExtensionPrompt('yume_profile', '', 1, 0, false, 0);
         return;
     }
 
     const data = getCharData(); if(!data) return;
-    if (!data.birthday && !data.periodStart && data.diary.length === 0 && !data.vibe) return;
+    if (!data.birthday && !data.periodStart && data.diary.length === 0 && !data.vibe && !data.anniversary) return;
 
+    // 明确获取用户的名字，防止AI搞混
     const userName = context.name1 || '用户';
 
     const publicDiaries = data.diary.filter(d => d.author === 'user' && d.isPublic).slice(-2);
     const diaryText = publicDiaries.length ? `\n- ${userName}最近的日记心情：${publicDiaries.map(d => d.text).join('；')}` : '';
 
-    const prompt = `[系统提示：以下是关于 ${userName} 的绝对真实设定，请在对话中自然体现对这些信息的了解与关怀：\n- ${userName} 的生日：${data.birthday || '未知'}\n- ${userName} 的生理期状态：${currentPeriodStatusText}\n- ${userName} 今日心情：${data.vibe || '平静'} ${diaryText}]`;
+    // 动态计算纪念日注入文本
+    let anniText = '';
+    if (data.anniversary) {
+        const diff = Math.floor((new Date().setHours(0,0,0,0) - new Date(data.anniversary).setHours(0,0,0,0)) / 86400000);
+        if (diff >= 0) anniText = `\n- ${userName}与你已经相伴了 ${diff} 天`;
+    }
 
-    // 注入在最高优先级 (After Main Prompt)
+    // 彻底重写 Prompt，明确主语，语气更强，加入纪念日
+    const prompt = `[系统提示：以下是关于 ${userName} 的绝对真实设定，请在对话中自然体现对这些信息的了解与关怀：\n- ${userName} 的生日：${data.birthday || '未知'}${anniText}\n- ${userName} 的生理期状态：${currentPeriodStatusText}\n- ${userName} 今日心情：${data.vibe || '平静'} ${diaryText}]`;
+
+    // 注入在最高优先级 (After Main Prompt)，保证绝对不会被AI遗忘或挤出上下文
     context.setExtensionPrompt('yume_profile', prompt, 1, 0, false, 0);
 }

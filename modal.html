@@ -21,20 +21,43 @@
     <div class="yume-modal-content">
         <!-- 1. 档案 -->
         <div id="yume-tab-profile" class="yume-tab-pane active">
-            <div class="yume-input-group">
-                <label>🎨 手账主题 (若使用了自定义CSS，请选默认)</label>
-                <select id="ym_theme_select" class="text_pole">
-                    <option value="dark">🌙 暗夜樱花 (默认)</option>
-                    <option value="light">☀️ 晨曦白纸</option>
-                    <option value="matcha">🍵 抹茶信笺</option>
-                </select>
+            
+            <!-- 恢复的：主题与透明度 -->
+            <div style="display: flex; gap: 10px;">
+                <div class="yume-input-group" style="flex: 2;">
+                    <label>🎨 手账主题 (若用自定义CSS请选默认)</label>
+                    <select id="ym_theme_select" class="text_pole">
+                        <option value="dark">🌙 暗夜樱花 (默认)</option>
+                        <option value="light">☀️ 晨曦白纸</option>
+                        <option value="matcha">🍵 抹茶信笺</option>
+                        <option value="sakura">🌸 落樱缤纷</option>
+                        <option value="gothic">🦇 哥特暗夜</option>
+                        <option value="ocean">🌊 深海之息</option>
+                        <option value="cyber">⚡ 霓虹赛博</option>
+                        <option value="sunset">🌇 橘色落日</option>
+                    </select>
+                </div>
+                <div class="yume-input-group" style="flex: 1;">
+                    <label>🌁 透明度</label>
+                    <input type="range" id="ym_opacity_slider" min="0.1" max="1" step="0.05" value="0.95" style="width: 100%; margin-top: 8px;">
+                </div>
             </div>
+
+            <!-- 移入面板的：独立纪念日 -->
+            <div class="yume-input-group">
+                <label>💕 纪念日 (哪天在一起的)</label>
+                <input type="date" id="ym_anniversary" class="text_pole">
+            </div>
+
             <div style="display: flex; gap: 10px;">
                 <div class="yume-input-group"><label>🎂 我的生日</label> <input type="text" id="ym_birth" class="text_pole" placeholder="如: 12月25日"></div>
                 <div class="yume-input-group"><label>✨ 我的性格</label> <input type="text" id="ym_mbti" class="text_pole"></div>
             </div>
+            
             <div class="yume-input-group"><label>☁️ 今日心情</label> <input type="text" id="ym_vibe" class="text_pole" placeholder="今天很累，需要抱抱"></div>
+            
             <hr class="sysHR">
+            
             <h4 style="color:var(--ym-primary); margin-bottom:10px;">🩸 生理期追踪</h4>
             <div style="display: flex; gap: 10px;">
                 <div class="yume-input-group"><label>开始日期</label> <input type="date" id="ym_p_start" class="text_pole"></div>
@@ -46,9 +69,9 @@
             </div>
             <div id="yume-period-status" class="yume-highlight-box">请填写日期</div>
             
-            <button id="ym_btn_sync_profile" class="yume-btn" style="margin-top: 15px; background: var(--ym-primary);">💾 保存并同步记忆给TA</button>
+            <!-- 修改为“保存” -->
+            <button id="ym_btn_sync_profile" class="yume-btn" style="margin-top: 15px; background: var(--ym-primary);">💾 保存</button>
             
-            <!-- 找回的导入导出功能 -->
             <div style="display: flex; gap: 10px; margin-top: 10px;">
                 <button id="ym_btn_export" class="yume-btn-outline" style="flex:1; margin:0;"><i class="fa-solid fa-file-export"></i> 导出数据</button>
                 <button id="ym_btn_import" class="yume-btn-outline" style="flex:1; margin:0;"><i class="fa-solid fa-file-import"></i> 导入数据</button>
@@ -113,7 +136,7 @@
             <div id="yume-diary-history" class="ym-chat-list"></div>
         </div>
 
-        <!-- 5. 找回的字卡系统 -->
+        <!-- 5. 字卡系统 -->
         <div id="yume-tab-cards" class="yume-tab-pane">
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px; flex-shrink: 0;">
                 <button id="ym_btn_manage_cards" class="yume-btn-outline" style="width: 48%; margin: 0; padding: 8px;">📇 管理字卡库</button>
