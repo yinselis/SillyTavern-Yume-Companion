@@ -1,12 +1,11 @@
 const MODULE_NAME = 'yume-companion';
 
-// 默认全局设置
 const defaultSettings = {
     showFloat: true, floatIcon: '', fabX: '', fabY: '', anniversary: '',
     apiUrl: '', apiKey: '', apiModel: '',
-    theme: 'dark', opacity: 0.95, 
-    enableInjection: true, // 新增：是否注入酒馆记忆
-    customCss: '',         // 新增：自定义CSS
+    theme: 'dark', 
+    enableInjection: true, // 记忆注入开关
+    customCss: '',         // 自定义CSS
     chars: {}      
 };
 
@@ -14,24 +13,22 @@ let settings = {};
 let currentPeriodStatusText = '未知'; 
 let currentCharId = null;
 
-// ====== 1. 核心数据管理 ======
-
 function getCharData() {
     const context = SillyTavern.getContext();
     if (!context.characterId) return null;
     if (!settings.chars) settings.chars = {};
     if (!settings.chars[context.characterId]) {
         settings.chars[context.characterId] = {
-            birthday: '', mbti: '',
+            birthday: '', mbti: '', vibe: '',
             periodStart: '', periodEnd: '', periodCycle: 28, 
             randomLetterProb: 0, 
             diary: [], letters: [], pendingLetters: [],
             wordCards: ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边", "乖，我在", "今天辛苦啦", "摸摸头", "早点睡", "我爱你"],
-            wordCardChat: [] 
+            wordCardChat: []
         };
     }
     const data = settings.chars[context.characterId];
-    if (!data.wordCards) data.wordCards = ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边", "乖，我在", "今天辛苦啦", "摸摸头", "早点睡", "我爱你"];
+    if (!data.wordCards) data.wordCards = ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边"];
     if (!data.wordCardChat) data.wordCardChat = [];
     return data;
 }
@@ -45,31 +42,11 @@ function loadSettings() {
     }
 }
 
-function migrateOldData() {
-    const context = SillyTavern.getContext();
-    if (settings.diary && settings.diary.length > 0 || settings.letters && settings.letters.length > 0) {
-        if (!settings.chars) settings.chars = {};
-        if (!settings.chars['default_migrated']) {
-            settings.chars['default_migrated'] = {
-                birthday: settings.birthday || '', mbti: settings.mbti || '',
-                periodStart: settings.periodLast || '', periodEnd: '', periodCycle: settings.periodCycle || 28,
-                randomLetterProb: 5, diary: settings.diary || [], letters: settings.letters || [],
-                pendingLetters: [], wordCards: ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边"], wordCardChat: []
-            };
-        }
-        delete settings.diary; delete settings.letters; delete settings.birthday;
-        delete settings.mbti; delete settings.vibe; delete settings.periodLast;
-        context.saveSettingsDebounced();
-    }
-}
-
-// ====== 2. 初始化流程 ======
 jQuery(async () => {
     const context = SillyTavern.getContext();
     context.eventSource.on(context.eventTypes.APP_READY, async () => {
         loadSettings();
-        migrateOldData();
-        applyCustomCss(); // 应用自定义CSS
+        applyCustomCss();
         await initSidebarUI();
         await initModalUI();
         
@@ -103,11 +80,10 @@ function refreshAllDataBindings() {
 
     applyTheme(settings.theme || 'dark');
     $('#ym_theme_select').val(settings.theme || 'dark');
-    $('#ym_opacity_slider').val(settings.opacity || 0.95);
-    $('#yume-main-modal').css('--ym-bg-opacity', settings.opacity || 0.95);
 
     $('#ym_birth').val(data.birthday);
     $('#ym_mbti').val(data.mbti);
+    $('#ym_vibe').val(data.vibe);
     $('#ym_p_start').val(data.periodStart);
     $('#ym_p_end').val(data.periodEnd);
     $('#ym_p_cycle').val(data.periodCycle);
@@ -123,11 +99,10 @@ function refreshAllDataBindings() {
 
 function applyTheme(themeName) {
     const modal = $('#yume-main-modal');
-    modal.removeClass('theme-light theme-dark theme-matcha theme-sakura theme-gothic theme-ocean theme-cyber theme-sunset');
+    modal.removeClass('theme-light theme-dark theme-matcha');
     modal.addClass(`theme-${themeName}`);
 }
 
-// 动态注入自定义CSS
 function applyCustomCss() {
     let styleTag = $('#yume-custom-css-block');
     if (styleTag.length === 0) {
@@ -137,7 +112,6 @@ function applyCustomCss() {
     styleTag.html(settings.customCss || '');
 }
 
-// ====== 3. UI 初始化与事件绑定 ======
 async function initSidebarUI() {
     const context = SillyTavern.getContext();
     const currentPath = import.meta.url.substring(0, import.meta.url.lastIndexOf('/'));
@@ -154,11 +128,10 @@ async function initSidebarUI() {
     };
 
     bindSetting('ym_setting_float', 'showFloat', true, () => $('#yume-floating-btn').css('display', settings.showFloat ? 'flex' : 'none'));
-    bindSetting('ym_setting_inject', 'enableInjection', true, updateProfileInjection); // 绑定注入开关
+    bindSetting('ym_setting_inject', 'enableInjection', true, updateProfileInjection);
     bindSetting('ym_float_icon', 'floatIcon', false, updateFloatingIcon);
     bindSetting('ym_anniversary', 'anniversary', false, () => { calculateAnniversary(); updateProfileInjection(); });
     
-    // 自定义CSS绑定
     $('#ym_custom_css').val(settings.customCss || '');
     $('#ym_btn_save_css').on('click', () => {
         settings.customCss = $('#ym_custom_css').val();
@@ -271,27 +244,29 @@ async function initModalUI() {
             data[key] = $(e.target).val();
             context.saveSettingsDebounced();
             if(id.startsWith('ym_p_')) calculatePeriod();
-            updateProfileInjection();
         });
     };
     bindCharData('ym_birth', 'birthday');
     bindCharData('ym_mbti', 'mbti');
+    bindCharData('ym_vibe', 'vibe');
     bindCharData('ym_p_start', 'periodStart');
     bindCharData('ym_p_end', 'periodEnd');
     bindCharData('ym_p_cycle', 'periodCycle');
     bindCharData('ym_random_letter_prob', 'randomLetterProb');
+
+    // 绑定手动同步按钮
+    $('#ym_btn_sync_profile').on('click', () => {
+        updateProfileInjection();
+        toastr.success('记忆已强制同步给TA！', '🌸 同步成功');
+    });
 
     $('#ym_theme_select').on('change', (e) => {
         settings.theme = $(e.target).val();
         applyTheme(settings.theme);
         context.saveSettingsDebounced();
     });
-    $('#ym_opacity_slider').on('input', (e) => {
-        settings.opacity = parseFloat($(e.target).val());
-        $('#yume-main-modal').css('--ym-bg-opacity', settings.opacity);
-        context.saveSettingsDebounced();
-    });
 
+    // 导入导出绑定
     $('#ym_btn_export').on('click', handleExportData);
     $('#ym_btn_import').on('click', () => $('#ym_file_import').click());
     $('#ym_file_import').on('change', handleImportData);
@@ -303,6 +278,7 @@ async function initModalUI() {
     $('#ym_save_diary_btn').on('click', handleSaveDiary);
     $('#ym_btn_ai_diary').on('click', handleAIDiary);
 
+    // 字卡绑定
     $('#ym_btn_manage_cards').on('click', () => {
         $('#yume-card-manager').slideToggle();
         renderWordCardList();
@@ -330,7 +306,7 @@ window.yumeToggleCollapse = function(btn) {
     }
 };
 
-// ====== 数据导入导出 ======
+// ====== 导入导出逻辑 ======
 function handleExportData() {
     const data = getCharData(); if(!data) return;
     const dataStr = JSON.stringify(data, null, 2);
@@ -692,7 +668,7 @@ window.yumeAddReply = function(id, author, isInitial = false) {
     }
 };
 
-// ====== 7. 字卡系统 ======
+// ====== 7. 找回的字卡系统 ======
 function renderWordCardChat() {
     const data = getCharData(); if(!data) return;
     const $c = $('#yume-card-chat-history');
@@ -814,27 +790,25 @@ async function handleAutoGenerateCards() {
     });
 }
 
-// ====== 8. 彻底重构的记忆注入 (修复AI认知问题) ======
+// ====== 8. 彻底重构的记忆注入 (最高优先级) ======
 function updateProfileInjection() {
     const context = SillyTavern.getContext();
     
-    // 1. 如果用户关闭了注入开关，则清空注入词并退出
     if (!settings.enableInjection) {
-        context.setExtensionPrompt('yume_profile', '', 4, 4, false, 0);
+        context.setExtensionPrompt('yume_profile', '', 1, 0, false, 0);
         return;
     }
 
     const data = getCharData(); if(!data) return;
-    if (!data.birthday && !data.periodStart && data.diary.length === 0) return;
+    if (!data.birthday && !data.periodStart && data.diary.length === 0 && !data.vibe) return;
 
-    // 2. 明确获取用户的名字，防止AI搞混
     const userName = context.name1 || '用户';
 
     const publicDiaries = data.diary.filter(d => d.author === 'user' && d.isPublic).slice(-2);
     const diaryText = publicDiaries.length ? `\n- ${userName}最近的日记心情：${publicDiaries.map(d => d.text).join('；')}` : '';
 
-    // 3. 彻底重写 Prompt，让 AI 明确知道这是属于“User”的信息
-    const prompt = `[系统提示：以下是关于 ${userName} 的当前状态，请在对话中自然体现对这些信息的了解与关怀：\n- ${userName}的生日：${data.birthday || '未知'}\n- ${userName}的生理期状态：${currentPeriodStatusText} ${diaryText}]`;
+    const prompt = `[系统提示：以下是关于 ${userName} 的绝对真实设定，请在对话中自然体现对这些信息的了解与关怀：\n- ${userName} 的生日：${data.birthday || '未知'}\n- ${userName} 的生理期状态：${currentPeriodStatusText}\n- ${userName} 今日心情：${data.vibe || '平静'} ${diaryText}]`;
 
-    context.setExtensionPrompt('yume_profile', prompt, 4, 4, false, 0);
+    // 注入在最高优先级 (After Main Prompt)
+    context.setExtensionPrompt('yume_profile', prompt, 1, 0, false, 0);
 }

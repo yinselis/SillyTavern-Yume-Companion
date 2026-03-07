@@ -21,37 +21,19 @@
     <div class="yume-modal-content">
         <!-- 1. 档案 -->
         <div id="yume-tab-profile" class="yume-tab-pane active">
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <div class="yume-input-group" style="flex: 2;">
-                    <label>🎨 手账主题</label>
-                    <select id="ym_theme_select" class="text_pole">
-                        <option value="dark">🌙 暗夜樱花 (默认)</option>
-                        <option value="light">☀️ 晨曦白纸</option>
-                        <option value="matcha">🍵 抹茶信笺</option>
-                        <option value="sakura">🌸 落樱缤纷 (精致)</option>
-                        <option value="gothic">🍷 玫瑰暗影 (哥特)</option>
-                        <option value="ocean">🌊 深海流光</option>
-                        <option value="cyber">⚡ 赛博霓虹</option>
-                        <option value="sunset">🌇 落日黄昏</option>
-                    </select>
-                </div>
-                <div class="yume-input-group" style="flex: 1;">
-                    <label>🎚️ 不透明度</label>
-                    <input type="range" id="ym_opacity_slider" min="0.1" max="1.0" step="0.05" value="0.95" style="width:100%; margin-top:8px;">
-                </div>
+            <div class="yume-input-group">
+                <label>🎨 手账主题 (若使用了自定义CSS，请选默认)</label>
+                <select id="ym_theme_select" class="text_pole">
+                    <option value="dark">🌙 暗夜樱花 (默认)</option>
+                    <option value="light">☀️ 晨曦白纸</option>
+                    <option value="matcha">🍵 抹茶信笺</option>
+                </select>
             </div>
-
-            <!-- 数据导入导出 -->
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <button id="ym_btn_export" class="yume-btn-outline" style="flex:1; padding: 6px;"><i class="fa-solid fa-file-export"></i> 导出数据</button>
-                <button id="ym_btn_import" class="yume-btn-outline" style="flex:1; padding: 6px;"><i class="fa-solid fa-file-import"></i> 导入数据</button>
-                <input type="file" id="ym_file_import" accept=".json" style="display:none;">
-            </div>
-
             <div style="display: flex; gap: 10px;">
-                <div class="yume-input-group"><label>🎂 生日</label> <input type="text" id="ym_birth" class="text_pole"></div>
-                <div class="yume-input-group"><label>✨ 性格</label> <input type="text" id="ym_mbti" class="text_pole"></div>
+                <div class="yume-input-group"><label>🎂 我的生日</label> <input type="text" id="ym_birth" class="text_pole" placeholder="如: 12月25日"></div>
+                <div class="yume-input-group"><label>✨ 我的性格</label> <input type="text" id="ym_mbti" class="text_pole"></div>
             </div>
+            <div class="yume-input-group"><label>☁️ 今日心情</label> <input type="text" id="ym_vibe" class="text_pole" placeholder="今天很累，需要抱抱"></div>
             <hr class="sysHR">
             <h4 style="color:var(--ym-primary); margin-bottom:10px;">🩸 生理期追踪</h4>
             <div style="display: flex; gap: 10px;">
@@ -60,9 +42,18 @@
             </div>
             <div style="display: flex; gap: 10px;">
                 <div class="yume-input-group"><label>周期天数</label> <input type="number" id="ym_p_cycle" class="text_pole" value="28"></div>
-                <div class="yume-input-group"><label>突发长信概率(%)</label> <input type="number" id="ym_random_letter_prob" class="text_pole" value="5" title="聊天时TA突然给你写长信的概率"></div>
+                <div class="yume-input-group"><label>突发长信概率(%)</label> <input type="number" id="ym_random_letter_prob" class="text_pole" value="5"></div>
             </div>
             <div id="yume-period-status" class="yume-highlight-box">请填写日期</div>
+            
+            <button id="ym_btn_sync_profile" class="yume-btn" style="margin-top: 15px; background: var(--ym-primary);">💾 保存并同步记忆给TA</button>
+            
+            <!-- 找回的导入导出功能 -->
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button id="ym_btn_export" class="yume-btn-outline" style="flex:1; margin:0;"><i class="fa-solid fa-file-export"></i> 导出数据</button>
+                <button id="ym_btn_import" class="yume-btn-outline" style="flex:1; margin:0;"><i class="fa-solid fa-file-import"></i> 导入数据</button>
+                <input type="file" id="ym_file_import" accept=".json" style="display:none;">
+            </div>
         </div>
 
         <!-- 2. 互动 -->
@@ -71,8 +62,6 @@
                 <div style="font-size: 3em; animation: pulse 2s infinite;">💖</div>
                 <div style="font-size: 0.85em; opacity: 0.7; margin-top: 5px;">触碰屏幕，传递你的心意</div>
             </div>
-            
-            <!-- 完美还原的 7 个互动按钮 -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                 <button class="yume-btn-outline" onclick="yumeInteract('pet')">👋 摸摸头</button>
                 <button class="yume-btn-outline" onclick="yumeInteract('hug')">🫂 抱一下</button>
@@ -80,10 +69,8 @@
                 <button class="yume-btn-outline" onclick="yumeInteract('poke')">👉 戳戳脸</button>
                 <button class="yume-btn-outline" onclick="yumeInteract('kiss')">💋 亲一口</button>
                 <button class="yume-btn-outline" onclick="yumeInteract('spoil')">🥺 撒个娇</button>
-                <!-- 缠绵按钮横跨两列 -->
                 <button class="yume-btn-outline" style="grid-column: span 2; border-color: #ff5a5f; color: #ff5a5f;" onclick="yumeInteract('intimate')">🔥 缠绵</button>
             </div>
-            
             <div id="yume-interact-result" style="display:none; background: rgba(128,128,128,0.1); border-radius: 12px; padding: 15px; min-height: 100px;">
                 <div id="yume-interact-loading" style="text-align:center; color:var(--ym-primary); display:none;"><i class="fa-solid fa-spinner fa-spin"></i> TA正在靠近...</div>
                 <div id="yume-interact-text" style="line-height: 1.6;"></div>
@@ -95,7 +82,6 @@
             <div style="display: flex; justify-content: flex-end; margin-bottom: 10px; flex-shrink: 0;">
                 <button id="ym_btn_write_letter" class="yume-btn-outline" style="padding: 6px 15px;">+ 递交信笺</button>
             </div>
-            
             <div id="yume-letter-writer" style="display:none; background: rgba(128,128,128,0.1); padding: 15px; border-radius: 12px; margin-bottom: 15px; flex-shrink: 0;">
                 <textarea id="ym_letter_input" class="text_pole" rows="4" placeholder="写下想对TA说的话..."></textarea>
                 <div style="display: flex; gap: 10px; margin: 10px 0;">
@@ -107,7 +93,6 @@
                 </div>
                 <button id="ym_send_letter_btn" class="yume-btn" style="margin: 0; padding: 8px;">封装寄出</button>
             </div>
-
             <div id="yume-letters-history" class="ym-chat-list"></div>
         </div>
 
@@ -117,7 +102,6 @@
                 <button id="ym_btn_write_diary" class="yume-btn-outline" style="width: 48%; margin: 0; padding: 8px;">+ 写日记</button>
                 <button id="ym_btn_ai_diary" class="yume-btn-outline" style="width: 48%; margin: 0; padding: 8px;">偷看TA的日记</button>
             </div>
-            
             <div id="yume-diary-writer" style="display:none; background: rgba(128,128,128,0.1); padding: 15px; border-radius: 12px; margin-bottom: 15px; flex-shrink: 0;">
                 <textarea id="ym_diary_input" class="text_pole" rows="4" placeholder="今天发生了什么..."></textarea>
                 <div style="display: flex; gap: 15px; margin: 10px 0;">
@@ -126,37 +110,31 @@
                 </div>
                 <button id="ym_save_diary_btn" class="yume-btn" style="margin: 0; padding: 8px;">锁上日记本</button>
             </div>
-
             <div id="yume-diary-history" class="ym-chat-list"></div>
         </div>
 
-        <!-- 5. 字卡 -->
+        <!-- 5. 找回的字卡系统 -->
         <div id="yume-tab-cards" class="yume-tab-pane">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; flex-shrink: 0; gap: 5px;">
-                <button id="ym_btn_manage_cards" class="yume-btn-outline" style="flex:1; padding: 6px;"><i class="fa-solid fa-list"></i> 管理字卡</button>
-                <button id="ym_btn_ai_cards" class="yume-btn-outline" style="flex:1; padding: 6px;" title="根据酒馆聊天记录自动生成新字卡"><i class="fa-solid fa-wand-magic-sparkles"></i> 记录提取</button>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; flex-shrink: 0;">
+                <button id="ym_btn_manage_cards" class="yume-btn-outline" style="width: 48%; margin: 0; padding: 8px;">📇 管理字卡库</button>
+                <button id="ym_btn_ai_cards" class="yume-btn-outline" style="width: 48%; margin: 0; padding: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> 记录提取</button>
             </div>
-
-            <div id="yume-card-manager" style="display:none; background: rgba(128,128,128,0.1); padding: 15px; border-radius: 12px; margin-bottom: 10px; flex-shrink: 0;">
-                <p style="font-size:0.85em; opacity:0.8; margin-bottom:5px;">批量导入字卡 (每行一句)：</p>
-                <textarea id="ym_card_import_input" class="text_pole" rows="3" placeholder="亲亲&#10;抱抱&#10;我在你身边"></textarea>
+            
+            <div id="yume-card-manager" style="display:none; background: rgba(128,128,128,0.1); padding: 15px; border-radius: 12px; margin-bottom: 15px; flex-shrink: 0;">
+                <div id="yume-card-count" style="font-size: 0.85em; opacity: 0.8; margin-bottom: 10px;"></div>
+                <div id="yume-card-list" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 5px;"></div>
+                <textarea id="ym_card_import_input" class="text_pole" rows="3" placeholder="批量导入字卡，每行一句..."></textarea>
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button id="ym_save_cards_btn" class="yume-btn" style="margin: 0; padding: 6px; flex:2;">导入追加</button>
-                    <button id="ym_clear_cards_btn" class="yume-btn" style="margin: 0; padding: 6px; flex:1; background:#dc3545;">清空全部</button>
+                    <button id="ym_save_cards_btn" class="yume-btn" style="flex:1; margin:0; padding: 8px;">导入</button>
+                    <button id="ym_clear_cards_btn" class="yume-btn-outline" style="flex:1; margin:0; padding: 8px; border-color: #ff5a5f; color: #ff5a5f;">清空</button>
                 </div>
-                <div id="yume-card-count" style="margin-top:10px; font-size:0.85em; color:var(--ym-primary); text-align:center;">当前拥有字卡：0 句</div>
-                <!-- 具体的字卡列表 -->
-                <div id="yume-card-list"></div>
             </div>
 
-            <div class="yume-wordcard-container">
-                <div id="yume-card-chat-history" class="yume-wordcard-chat">
-                    <!-- 聊天气泡区域 -->
-                </div>
-                <div class="yume-wordcard-input-area">
-                    <input type="text" id="ym_card_chat_input" class="text_pole" style="flex:1;" placeholder="发送消息，触发字卡...">
-                    <button id="ym_send_card_msg_btn" class="yume-btn" style="width:auto; padding: 0 15px; margin:0;"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
+            <div id="yume-card-chat-history" class="ym-chat-list" style="flex: 1; margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; overflow-y: auto;"></div>
+            
+            <div style="display: flex; gap: 10px; flex-shrink: 0;">
+                <input type="text" id="ym_card_chat_input" class="text_pole" style="flex:1;" placeholder="发消息触发字卡...">
+                <button id="ym_send_card_msg_btn" class="yume-btn" style="width: auto; padding: 0 20px; margin: 0;">发送</button>
             </div>
         </div>
     </div>
