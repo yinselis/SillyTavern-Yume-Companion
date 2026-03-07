@@ -5,8 +5,8 @@ const defaultSettings = {
     showFloat: true, floatIcon: '', floatSize: 55, fabX: '', fabY: '', 
     apiUrl: '', apiKey: '', apiModel: '',
     theme: 'dark', opacity: 0.95,
-    enableInjection: true, // 记忆注入开关
-    enableProactive: false, // 主动制造惊喜开关
+    enableInjection: true, 
+    enableProactive: false, 
     customCss: '',         
     chars: {}      
 };
@@ -15,20 +15,29 @@ let settings = {};
 let currentPeriodStatusText = '未知'; 
 let currentCharId = null;
 
-// ====== 辅助函数：判断是否为图片URL ======
 function isImageUrl(str) {
     if (typeof str !== 'string') return false;
     return /^https?:\/\/.*\.(jpeg|jpg|gif|png|webp|bmp)(?:\?.*)?$/i.test(str.trim());
 }
 
-// ====== 1. 核心数据管理 ======
+// ====== 1. 核心数据管理 (彻底修复换预设丢数据问题) ======
 
 function getCharData() {
     const context = SillyTavern.getContext();
-    if (!context.characterId) return null;
+    if (!context.characterId || !context.name2) return null;
+    
+    // 【核心修改】：不再使用底层易变的 characterId，而是使用角色的“名字”作为唯一绑定钥匙！
+    const charKey = context.name2; 
+    
     if (!settings.chars) settings.chars = {};
-    if (!settings.chars[context.characterId]) {
-        settings.chars[context.characterId] = {
+    
+    // 自动兼容：如果名字下没数据，但旧的ID下有数据，自动把旧数据搬过来
+    if (!settings.chars[charKey] && settings.chars[context.characterId]) {
+        settings.chars[charKey] = JSON.parse(JSON.stringify(settings.chars[context.characterId]));
+    }
+
+    if (!settings.chars[charKey]) {
+        settings.chars[charKey] = {
             anniversary: '', 
             birthday: '', mbti: '', vibe: '',
             periodStart: '', periodEnd: '', periodCycle: 28, 
@@ -39,7 +48,7 @@ function getCharData() {
             notes: [] 
         };
     }
-    const data = settings.chars[context.characterId];
+    const data = settings.chars[charKey];
     if (data.anniversary === undefined) data.anniversary = '';
     if (!data.wordCards) data.wordCards = ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边"];
     if (!data.wordCardChat) data.wordCardChat = [];
@@ -58,7 +67,7 @@ function loadSettings() {
 
 function migrateOldData() {
     const context = SillyTavern.getContext();
-    if (settings.anniversary && context.characterId) {
+    if (settings.anniversary && context.name2) {
         const data = getCharData();
         if (data && !data.anniversary) {
             data.anniversary = settings.anniversary;
@@ -237,13 +246,12 @@ async function initSidebarUI() {
         btn.html('<i class="fa-solid fa-floppy-disk"></i> 保存并测试');
     });
 
-    // 🚑 【修复版】：数据急救站逻辑（实时获取当前角色ID）
+    // 🚑 数据急救站逻辑（绑定到名字）
     $('#ym_btn_rescue_data').on('click', function() {
-        // 强制获取最新上下文
         const liveContext = SillyTavern.getContext();
-        const currentId = liveContext.characterId || currentCharId;
+        const charKey = liveContext.name2;
         
-        if (!currentId) {
+        if (!charKey) {
             toastr.warning('请先在酒馆主界面选中你要恢复的那个角色！');
             return;
         }
@@ -251,7 +259,6 @@ async function initSidebarUI() {
         let bestData = null;
         let maxItems = -1;
 
-        // 遍历所有存过的数据，找出字卡/日记最多的那一份
         for (let id in settings.chars) {
             let data = settings.chars[id];
             let count = (data.wordCards ? data.wordCards.length : 0) + 
@@ -265,12 +272,11 @@ async function initSidebarUI() {
         }
 
         if (bestData && maxItems > 0) {
-            if (confirm(`找到了包含 ${maxItems} 条记录的历史数据（这应该就是你丢失的那份）。\n\n是否强行覆盖给当前的 ${liveContext.name2 || '角色'}？`)) {
-                // 深拷贝数据，防止引用错误
-                settings.chars[currentId] = JSON.parse(JSON.stringify(bestData));
+            if (confirm(`找到了包含 ${maxItems} 条记录的历史数据。\n\n是否强行恢复并永久绑定给角色【${charKey}】？`)) {
+                settings.chars[charKey] = JSON.parse(JSON.stringify(bestData));
                 liveContext.saveSettingsDebounced();
                 refreshAllDataBindings();
-                toastr.success('🎉 数据已成功找回并绑定！请打开手账查看。');
+                toastr.success('🎉 数据已成功找回，以后换预设再也不会丢了！');
             }
         } else {
             toastr.error('糟糕，没有在缓存中找到任何有内容的历史数据...');
@@ -461,7 +467,8 @@ function handleImportData(e) {
         try {
             const importedData = JSON.parse(event.target.result);
             const context = SillyTavern.getContext();
-            settings.chars[context.characterId] = importedData;
+            // 导入时也绑定到名字
+            settings.chars[context.name2] = importedData;
             context.saveSettingsDebounced();
             refreshAllDataBindings();
             toastr.success('手账数据导入成功！', '🌸');
