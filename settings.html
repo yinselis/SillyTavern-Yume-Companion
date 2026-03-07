@@ -27,7 +27,7 @@
 
             <hr class="sysHR">
 
-            <!-- 终极版：自定义 CSS -->
+            <!-- 自定义 CSS -->
             <details style="margin-bottom: 15px; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px;">
                 <summary style="cursor: pointer; color: #ff9a9e; font-weight: bold; outline: none;">🎨 自定义 CSS (全方位主题美化)</summary>
                 <div style="margin-top: 10px;">
@@ -113,10 +113,15 @@
             </div>
             <div class="yume-row-mini">
                 <label>模型 (Model)</label>
-                <input type="text" id="ym_api_model" class="text_pole" placeholder="gpt-4o-mini 或其他">
+                <!-- 文本框保留作为兜底，下拉框用于拉取后的选择 -->
+                <input type="text" id="ym_api_model" class="text_pole" placeholder="点击下方拉取，或手动输入">
+                <select id="ym_api_model_select" class="text_pole" style="display:none; margin-top: 5px; background: rgba(0,0,0,0.5);"></select>
             </div>
+            
+            <!-- 拆分后的双按钮 -->
             <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button id="ym_btn_save_api" class="menu_button" style="flex: 1; border: 1px solid #ff9a9e; color: #ff9a9e; background: transparent;"><i class="fa-solid fa-floppy-disk"></i> 保存并测试连接</button>
+                <button id="ym_btn_fetch_models" class="menu_button" style="flex: 1; border: 1px solid #a8d8ea; color: #a8d8ea; background: transparent;"><i class="fa-solid fa-rotate"></i> 拉取模型</button>
+                <button id="ym_btn_save_api" class="menu_button" style="flex: 1; border: 1px solid #ff9a9e; color: #ff9a9e; background: transparent;"><i class="fa-solid fa-floppy-disk"></i> 保存</button>
             </div>
         </div>
     </div>
