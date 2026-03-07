@@ -6,7 +6,7 @@ const defaultSettings = {
     apiUrl: '', apiKey: '', apiModel: '',
     theme: 'dark', opacity: 0.95,
     enableInjection: true, // 记忆注入开关
-    customCss: '',         // 自定义CSS
+    customCss: '',         
     chars: {}      
 };
 
@@ -22,19 +22,21 @@ function getCharData() {
     if (!settings.chars) settings.chars = {};
     if (!settings.chars[context.characterId]) {
         settings.chars[context.characterId] = {
-            anniversary: '', // 纪念日已实现 Char 分离
+            anniversary: '', 
             birthday: '', mbti: '', vibe: '',
             periodStart: '', periodEnd: '', periodCycle: 28, 
             randomLetterProb: 0, 
             diary: [], letters: [], pendingLetters: [],
             wordCards: ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边", "乖，我在", "今天辛苦啦", "摸摸头", "早点睡", "我爱你"],
-            wordCardChat: []
+            wordCardChat: [],
+            notes: [] // 新增：记事本数据
         };
     }
     const data = settings.chars[context.characterId];
     if (data.anniversary === undefined) data.anniversary = '';
     if (!data.wordCards) data.wordCards = ["亲亲", "贴贴", "抱抱", "别哭", "我在你身边"];
     if (!data.wordCardChat) data.wordCardChat = [];
+    if (!data.notes) data.notes = []; // 兼容旧数据
     return data;
 }
 
@@ -71,6 +73,7 @@ jQuery(async () => {
         
         context.eventSource.on(context.eventTypes.CHAT_CHANGED, handleChatChange);
         context.eventSource.on(context.eventTypes.MESSAGE_RECEIVED, handleChatProgress);
+        context.eventSource.on(context.eventTypes.MESSAGE_SENT, handleUserMessageSent); // 监听用户发送消息，触发25%概率
         
         handleChatChange();
     });
@@ -91,6 +94,7 @@ function handleChatChange() {
         $('#yume-letters-history').empty();
         $('#yume-diary-history').empty().append('<div style="padding:20px;text-align:center;opacity:0.5;">请先选择一个聊天对象</div>');
         $('#yume-card-chat-history').empty();
+        $('#yume-notes-history').empty();
     }
 }
 
@@ -117,8 +121,9 @@ function refreshAllDataBindings() {
     calculatePeriod();
     renderLetters();
     renderDiary();
+    renderNotes();
     renderWordCardChat();
-    updateProfileInjection();
+    updateProfileInjection(false);
 }
 
 function applyTheme(themeName) {
@@ -153,7 +158,7 @@ async function initSidebarUI() {
     };
 
     bindSetting('ym_setting_float', 'showFloat', true, () => $('#yume-floating-btn').css('display', settings.showFloat ? 'flex' : 'none'));
-    bindSetting('ym_setting_inject', 'enableInjection', true, updateProfileInjection);
+    bindSetting('ym_setting_inject', 'enableInjection', true, () => updateProfileInjection(false));
     bindSetting('ym_float_icon', 'floatIcon', false, updateFloatingIcon);
     bindSetting('ym_float_size', 'floatSize', false, updateFloatingIcon);
     
@@ -169,73 +174,45 @@ async function initSidebarUI() {
     bindSetting('ym_api_key', 'apiKey');
     bindSetting('ym_api_model', 'apiModel');
 
-    // 拉取模型列表逻辑
     $('#ym_btn_fetch_models').on('click', async function() {
         const btn = $(this);
         const urlInput = $('#ym_api_url').val().trim();
         const keyInput = $('#ym_api_key').val().trim();
 
-        if (!urlInput || !keyInput) {
-            toastr.warning('请先填写 API URL 和 API Key！');
-            return;
-        }
+        if (!urlInput || !keyInput) { toastr.warning('请先填写 API URL 和 API Key！'); return; }
 
         btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 拉取中...');
         try {
             let baseUrl = urlInput.endsWith('/') ? urlInput.slice(0, -1) : urlInput;
             let fetchUrl = baseUrl + '/models';
-
-            const res = await fetch(fetchUrl, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${keyInput}`, 'Content-Type': 'application/json' }
-            });
-
+            const res = await fetch(fetchUrl, { method: 'GET', headers: { 'Authorization': `Bearer ${keyInput}`, 'Content-Type': 'application/json' } });
             if (!res.ok) throw new Error('网络请求失败');
-
             const data = await res.json();
             if (data && data.data && Array.isArray(data.data)) {
                 const select = $('#ym_api_model_select');
-                select.empty();
-                select.append('<option value="">-- 请选择模型 --</option>');
-                
+                select.empty().append('<option value="">-- 请选择模型 --</option>');
                 const models = data.data.map(m => m.id).sort();
-                models.forEach(id => {
-                    select.append(`<option value="${id}">${id}</option>`);
-                });
-
+                models.forEach(id => select.append(`<option value="${id}">${id}</option>`));
                 select.show();
                 toastr.success(`成功拉取 ${models.length} 个模型！`);
-                
                 if (settings.apiModel) select.val(settings.apiModel);
-            } else {
-                throw new Error('返回数据格式不正确');
-            }
+            } else { throw new Error('返回数据格式不正确'); }
         } catch (e) {
-            console.error(e);
-            toastr.error('拉取失败，请检查 URL 和 Key 是否正确。');
-        } finally {
-            btn.html('<i class="fa-solid fa-rotate"></i> 拉取模型');
-        }
+            console.error(e); toastr.error('拉取失败，请检查 URL 和 Key 是否正确。');
+        } finally { btn.html('<i class="fa-solid fa-rotate"></i> 拉取模型'); }
     });
 
-    // 下拉菜单选择模型后，同步到输入框并保存
     $('#ym_api_model_select').on('change', function() {
         const selected = $(this).val();
-        if (selected) {
-            $('#ym_api_model').val(selected);
-            settings.apiModel = selected;
-            context.saveSettingsDebounced();
-        }
+        if (selected) { $('#ym_api_model').val(selected); settings.apiModel = selected; context.saveSettingsDebounced(); }
     });
 
-    // 保存并测试连接
     $('#ym_btn_save_api').on('click', async function() {
         const btn = $(this);
         btn.html('<i class="fa-solid fa-spinner fa-spin"></i> 测试中...');
         if (!settings.apiUrl || !settings.apiKey) {
             toastr.info('已保存！当前未配置独立API，将默认使用酒馆通道。');
-            btn.html('<i class="fa-solid fa-floppy-disk"></i> 保存并测试');
-            return;
+            btn.html('<i class="fa-solid fa-floppy-disk"></i> 保存并测试'); return;
         }
         try {
             let url = settings.apiUrl.endsWith('/') ? settings.apiUrl : settings.apiUrl + '/';
@@ -256,11 +233,7 @@ function updateFloatingIcon() {
     const text = $('#yume-float-text');
     const size = settings.floatSize || 55;
     
-    fab.css({
-        'width': `${size}px`,
-        'height': `${size}px`,
-        'font-size': `${size * 0.45}px`
-    });
+    fab.css({ 'width': `${size}px`, 'height': `${size}px`, 'font-size': `${size * 0.45}px` });
 
     if (settings.floatIcon && settings.floatIcon.trim() !== '') {
         fab.css('background-image', `url(${settings.floatIcon})`);
@@ -315,6 +288,7 @@ async function initModalUI() {
                 if(activeTab === 'yume-tab-letters') scrollToBottom('yume-letters-history');
                 if(activeTab === 'yume-tab-diary') scrollToBottom('yume-diary-history');
                 if(activeTab === 'yume-tab-cards') scrollToBottom('yume-card-chat-history');
+                if(activeTab === 'yume-tab-notes') scrollToBottom('yume-notes-history');
             }, 100);
         }
     });
@@ -329,6 +303,7 @@ async function initModalUI() {
             if(target === 'yume-tab-letters') scrollToBottom('yume-letters-history');
             if(target === 'yume-tab-diary') scrollToBottom('yume-diary-history');
             if(target === 'yume-tab-cards') scrollToBottom('yume-card-chat-history');
+            if(target === 'yume-tab-notes') scrollToBottom('yume-notes-history');
         }, 50);
     });
 
@@ -351,7 +326,7 @@ async function initModalUI() {
     bindCharData('ym_random_letter_prob', 'randomLetterProb');
 
     $('#ym_btn_sync_profile').on('click', () => {
-        updateProfileInjection();
+        updateProfileInjection(false);
         toastr.success('记忆已强制同步给TA！', '🌸 保存成功');
     });
 
@@ -370,6 +345,10 @@ async function initModalUI() {
     $('#ym_btn_export').on('click', handleExportData);
     $('#ym_btn_import').on('click', () => $('#ym_file_import').click());
     $('#ym_file_import').on('change', handleImportData);
+
+    // 记事绑定
+    $('#ym_btn_write_note').on('click', () => $('#yume-note-writer').slideToggle());
+    $('#ym_save_note_btn').on('click', handleSaveNote);
 
     $('#ym_btn_write_letter').on('click', () => $('#yume-letter-writer').slideToggle());
     $('#ym_send_letter_btn').on('click', handleSendLetter);
@@ -431,9 +410,7 @@ function handleImportData(e) {
             context.saveSettingsDebounced();
             refreshAllDataBindings();
             toastr.success('手账数据导入成功！', '🌸');
-        } catch(err) { 
-            toastr.error('导入失败：文件格式错误'); 
-        }
+        } catch(err) { toastr.error('导入失败：文件格式错误'); }
         $('#ym_file_import').val(''); 
     };
     reader.readAsText(file);
@@ -450,10 +427,8 @@ function calculatePeriod() {
     const data = getCharData();
     if (!data || !data.periodStart) { 
         $('#yume-period-status').text('尚未设置生理期').css('color', 'inherit'); 
-        currentPeriodStatusText = '未知';
-        return; 
+        currentPeriodStatusText = '未知'; return; 
     }
-    
     const today = new Date().setHours(0,0,0,0);
     const start = new Date(data.periodStart).setHours(0,0,0,0);
     const end = data.periodEnd ? new Date(data.periodEnd).setHours(0,0,0,0) : start + 4 * 86400000;
@@ -471,9 +446,7 @@ function calculatePeriod() {
             const realDaysLeft = daysIntoCycle < 0 ? Math.abs(daysIntoCycle) : daysLeft;
             currentPeriodStatusText = `距下次还有 ${realDaysLeft} 天`;
             $('#yume-period-status').text('☁️ ' + currentPeriodStatusText).css('color', 'var(--ym-primary)');
-        } else {
-            $('#yume-period-status').text('☁️ 周期未设置');
-        }
+        } else { $('#yume-period-status').text('☁️ 周期未设置'); }
     }
 }
 
@@ -500,22 +473,12 @@ async function callYumeAI(taskPrompt) {
             });
             const data = await res.json();
             return data.choices[0].message.content.trim();
-        } catch(e) {
-            console.error(e);
-            return "（独立API请求失败）";
-        }
+        } catch(e) { return "（独立API请求失败）"; }
     } else {
         try {
-            const rawReply = await context.generateRaw({
-                systemPrompt: sysPrompt,
-                prompt: taskPrompt,
-                bypassChat: true
-            });
+            const rawReply = await context.generateRaw({ systemPrompt: sysPrompt, prompt: taskPrompt, bypassChat: true });
             return rawReply.trim();
-        } catch (e) {
-            console.error(e);
-            return "（生成失败，请检查主API连接）";
-        }
+        } catch (e) { return "（生成失败，请检查主API连接）"; }
     }
 }
 
@@ -544,6 +507,53 @@ window.yumeInteract = async function(type) {
     $('#yume-interact-loading').hide();
     $('#yume-interact-text').text(`🌸 ${charName}：\n${reply}`);
 }
+
+// ====== 4.5 记事本模块 (新增) ======
+function renderNotes() {
+    const data = getCharData(); if(!data) return;
+    const $c = $('#yume-notes-history'); 
+    $c.empty();
+    
+    data.notes.slice().reverse().forEach(n => {
+        const isUser = n.author === 'user';
+        const title = isUser ? '📌 我的备忘录' : '👁️ TA的观察';
+        const color = isUser ? 'var(--ym-primary)' : '#8ec5fc';
+        
+        $c.append(`
+            <div class="yume-note-card" style="border-left-color: ${color};">
+                <div class="yume-note-header">
+                    <span style="color: ${color};">${title} | ${n.date}</span>
+                    <button class="ym-btn-del" onclick="yumeDeleteNote(${n.id})"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+                <div>${n.text.replace(/\n/g, '<br>')}</div>
+            </div>
+        `);
+    });
+}
+
+function handleSaveNote() {
+    const data = getCharData(); if(!data) return;
+    const text = $('#ym_note_input').val().trim();
+    if (!text) return;
+    
+    data.notes.push({ id: Date.now(), author: 'user', date: new Date().toLocaleDateString(), text });
+    $('#ym_note_input').val(''); 
+    $('#yume-note-writer').slideUp();
+    
+    SillyTavern.getContext().saveSettingsDebounced();
+    renderNotes();
+    updateProfileInjection(false);
+    toastr.success('记事已保存！TA会记住的。', '📌');
+}
+
+window.yumeDeleteNote = function(id) {
+    if(!confirm('确定要删除这条记事吗？')) return;
+    const data = getCharData(); if(!data) return;
+    data.notes = data.notes.filter(n => n.id !== id);
+    SillyTavern.getContext().saveSettingsDebounced();
+    renderNotes();
+    updateProfileInjection(false);
+};
 
 // ====== 5. 信笺模块 ======
 function renderLetters() {
@@ -592,11 +602,40 @@ async function handleSendLetter() {
     toastr.success(`信件已寄出！TA将在大约 ${delayTurns} 轮对话后回信。`, '💌 递交成功');
 }
 
+// 监听用户发送消息：触发 25% 悄悄话反应机制
+function handleUserMessageSent() {
+    const data = getCharData(); if(!data) return;
+    const userNotes = data.notes.filter(n => n.author === 'user');
+    
+    if (userNotes.length > 0 && Math.random() < 0.25) {
+        // 25% 概率触发，注入带有强制回应指令的 prompt
+        updateProfileInjection(true);
+    } else {
+        updateProfileInjection(false);
+    }
+}
+
 async function handleChatProgress() {
     const data = getCharData(); if(!data) return;
     const context = SillyTavern.getContext();
     const chat = context.chat;
     let needSave = false;
+
+    // AI 回复后，重置悄悄话反应机制
+    updateProfileInjection(false);
+
+    // AI 自动观察机制 (15% 概率)
+    if (Math.random() < 0.15 && chat.length > 3) {
+        const history = chat.slice(-6).map(m => `${m.is_user ? '我' : 'TA'}: ${m.mes}`).join('\n');
+        const task = `结合刚才的聊天记录：\n${history}\n\n写一句简短的内心独白，记录你此刻的心情，或者对用户的观察。直接输出正文，不要带引号，不超过30个字。`;
+        callYumeAI(task).then(reply => {
+            if(reply && reply.length < 50) {
+                data.notes.push({ id: Date.now(), author: 'ai', date: new Date().toLocaleDateString(), text: reply });
+                renderNotes();
+                SillyTavern.getContext().saveSettingsDebounced();
+            }
+        });
+    }
 
     if (data.pendingLetters && data.pendingLetters.length > 0) {
         for (let i = data.pendingLetters.length - 1; i >= 0; i--) {
@@ -702,7 +741,7 @@ function handleSaveDiary() {
     $('#yume-diary-writer').slideUp(); 
     
     SillyTavern.getContext().saveSettingsDebounced();
-    updateProfileInjection();
+    updateProfileInjection(false);
     renderDiary();
     
     if (wantsReply) yumeAddReply(entry.id, 'ai', true);
@@ -728,7 +767,7 @@ window.yumeDeleteDiary = function(id) {
     data.diary = data.diary.filter(d => d.id !== id);
     SillyTavern.getContext().saveSettingsDebounced();
     renderDiary();
-    updateProfileInjection();
+    updateProfileInjection(false);
 };
 
 window.yumeAddReply = function(id, author, isInitial = false) {
@@ -889,8 +928,8 @@ async function handleAutoGenerateCards() {
     });
 }
 
-// ====== 8. 彻底重构的记忆注入 (最高优先级 + 纪念日注入) ======
-function updateProfileInjection() {
+// ====== 8. 记忆注入 (包含记事本悄悄话机制) ======
+function updateProfileInjection(forceReact = false) {
     const context = SillyTavern.getContext();
     
     if (!settings.enableInjection) {
@@ -899,8 +938,6 @@ function updateProfileInjection() {
     }
 
     const data = getCharData(); if(!data) return;
-    if (!data.birthday && !data.periodStart && data.diary.length === 0 && !data.vibe && !data.anniversary) return;
-
     const userName = context.name1 || '用户';
 
     const publicDiaries = data.diary.filter(d => d.author === 'user' && d.isPublic).slice(-2);
@@ -912,7 +949,16 @@ function updateProfileInjection() {
         if (diff >= 0) anniText = `\n- ${userName}与你已经相伴了 ${diff} 天`;
     }
 
-    const prompt = `[系统提示：以下是关于 ${userName} 的绝对真实设定，请在对话中自然体现对这些信息的了解与关怀：\n- ${userName} 的生日：${data.birthday || '未知'}${anniText}\n- ${userName} 的生理期状态：${currentPeriodStatusText}\n- ${userName} 今日心情：${data.vibe || '平静'} ${diaryText}]`;
+    // 提取【用户】写的记事本内容
+    const userNotes = data.notes.filter(n => n.author === 'user');
+    const notesText = userNotes.length > 0 ? `\n- ${userName}留下的备忘录：${userNotes.map(n => n.text).join('；')}` : '';
+
+    let prompt = `[系统提示：以下是关于 ${userName} 的绝对真实设定，请在对话中自然体现对这些信息的了解与关怀：\n- ${userName} 的生日：${data.birthday || '未知'}${anniText}\n- ${userName} 的生理期状态：${currentPeriodStatusText}\n- ${userName} 今日心情：${data.vibe || '平静'} ${diaryText}${notesText}]`;
+
+    // 如果触发了 25% 悄悄话反应，追加强制指令
+    if (forceReact && userNotes.length > 0) {
+        prompt += `\n[系统悄悄话：请在本次回复中，随机挑选一条上述的“用户备忘录”内容进行不经意的回应或提及。]`;
+    }
 
     context.setExtensionPrompt('yume_profile', prompt, 1, 0, false, 0);
 }

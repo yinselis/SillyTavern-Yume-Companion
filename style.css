@@ -1,77 +1,67 @@
-/* ====== 🎨 主题变量定义 (支持动态透明度) ====== */
+/* ====== 🎨 主题变量定义 (已将底色透明度改为1，完美适配透明度滑块) ====== */
 :root {
-    /* 基础RGB值，用于配合 rgba() 实现动态透明度 */
-    --ym-bg-rgb-dark: 30, 30, 35;
-    --ym-text-dark: #eee;
-    --ym-border-dark: rgba(255, 154, 158, 0.4);
-    --ym-tab-bg-dark: rgba(0,0,0,0.4);
+    /* 1. 暗夜樱花 (默认) */
+    --ym-bg-dark: rgba(34, 34, 34, 1);
+    --ym-text-dark: #fff;
+    --ym-border-dark: rgba(255, 154, 158, 0.5);
+    --ym-tab-bg-dark: rgba(0,0,0,0.3);
     
-    --ym-bg-rgb-light: 255, 253, 250;
-    --ym-text-light: #5a4a4a;
-    --ym-border-light: rgba(255, 154, 158, 0.6);
-    --ym-tab-bg-light: rgba(255, 154, 158, 0.15);
+    /* 2. 晨曦白纸 */
+    --ym-bg-light: rgba(253, 250, 246, 1);
+    --ym-text-light: #4a4a4a;
+    --ym-border-light: rgba(255, 154, 158, 0.8);
+    --ym-tab-bg-light: rgba(255, 154, 158, 0.1);
 
-    --ym-bg-rgb-matcha: 246, 248, 242;
-    --ym-text-matcha: #4a5a4a;
-    --ym-border-matcha: #9fcc9f;
-    --ym-tab-bg-matcha: rgba(143, 188, 143, 0.15);
+    /* 3. 抹茶信笺 */
+    --ym-bg-matcha: rgba(244, 246, 240, 1);
+    --ym-text-matcha: #3a4a3a;
+    --ym-border-matcha: #8fbc8f;
+    --ym-tab-bg-matcha: rgba(143, 188, 143, 0.2);
 
-    --ym-bg-rgb-sakura: 255, 240, 245;
-    --ym-text-sakura: #8b5a65;
-    --ym-border-sakura: #ffb7c5;
-    --ym-tab-bg-sakura: rgba(255, 183, 197, 0.2);
+    /* 4. 落樱缤纷 */
+    --ym-bg-sakura: rgba(255, 240, 245, 1);
+    --ym-text-sakura: #5c3a4d;
+    --ym-border-sakura: #f48fb1;
+    --ym-tab-bg-sakura: rgba(244, 143, 177, 0.2);
 
-    --ym-bg-rgb-gothic: 20, 15, 15;
-    --ym-text-gothic: #d4c4c4;
-    --ym-border-gothic: #8b0000;
-    --ym-tab-bg-gothic: rgba(139, 0, 0, 0.2);
+    /* 5. 哥特暗夜 */
+    --ym-bg-gothic: rgba(18, 18, 20, 1);
+    --ym-text-gothic: #d3d3d3;
+    --ym-border-gothic: #8a0303;
+    --ym-tab-bg-gothic: rgba(138, 3, 3, 0.2);
 
-    /* 新增：深海主题 */
-    --ym-bg-rgb-ocean: 15, 25, 35;
-    --ym-text-ocean: #cceeff;
-    --ym-border-ocean: #4facfe;
-    --ym-tab-bg-ocean: rgba(79, 172, 254, 0.15);
+    /* 6. 深海之息 */
+    --ym-bg-ocean: rgba(10, 25, 47, 1);
+    --ym-text-ocean: #81d4fa;
+    --ym-border-ocean: #0277bd;
+    --ym-tab-bg-ocean: rgba(2, 119, 189, 0.3);
 
-    /* 新增：赛博霓虹 */
-    --ym-bg-rgb-cyber: 10, 10, 20;
-    --ym-text-cyber: #00ffcc;
-    --ym-border-cyber: #ff00ff;
-    --ym-tab-bg-cyber: rgba(255, 0, 255, 0.15);
+    /* 7. 霓虹赛博 */
+    --ym-bg-cyber: rgba(9, 9, 14, 1);
+    --ym-text-cyber: #00e5ff;
+    --ym-border-cyber: #d500f9;
+    --ym-tab-bg-cyber: rgba(213, 0, 249, 0.2);
 
-    /* 新增：落日黄昏 */
-    --ym-bg-rgb-sunset: 45, 25, 20;
-    --ym-text-sunset: #ffdab9;
-    --ym-border-sunset: #ff7f50;
-    --ym-tab-bg-sunset: rgba(255, 127, 80, 0.15);
+    /* 8. 橘色落日 */
+    --ym-bg-sunset: rgba(46, 21, 27, 1);
+    --ym-text-sunset: #ffcc80;
+    --ym-border-sunset: #ff7043;
+    --ym-tab-bg-sunset: rgba(255, 112, 67, 0.2);
 }
 
-/* 默认暗色主题 */
+/* ====== 主题应用 ====== */
 #yume-main-modal {
-    --ym-bg-opacity: 0.95; /* 默认透明度，可被JS覆盖 */
-    --ym-bg-rgb: var(--ym-bg-rgb-dark);
-    --ym-text: var(--ym-text-dark); 
-    --ym-border: var(--ym-border-dark); 
-    --ym-tab-bg: var(--ym-tab-bg-dark);
+    --ym-bg: var(--ym-bg-dark); --ym-text: var(--ym-text-dark); 
+    --ym-border: var(--ym-border-dark); --ym-tab-bg: var(--ym-tab-bg-dark);
     --ym-primary: #ff9a9e; --ym-letter-bg: #fdfaf6; --ym-letter-text: #5c4b41;
-    
-    position: fixed; top: 8vh; left: 50%; transform: translateX(-50%);
-    width: 420px; max-width: 92vw; height: 680px; max-height: 85vh;
-    background: rgba(var(--ym-bg-rgb), var(--ym-bg-opacity)); 
-    color: var(--ym-text);
-    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-    border: 1px solid var(--ym-border); border-radius: 15px;
-    z-index: 9999999; display: flex; flex-direction: column;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); transition: background 0.3s, color 0.3s;
 }
-
-/* 各主题映射 */
-#yume-main-modal.theme-light { --ym-bg-rgb: var(--ym-bg-rgb-light); --ym-text: var(--ym-text-light); --ym-border: var(--ym-border-light); --ym-tab-bg: var(--ym-tab-bg-light); }
-#yume-main-modal.theme-matcha { --ym-bg-rgb: var(--ym-bg-rgb-matcha); --ym-text: var(--ym-text-matcha); --ym-border: var(--ym-border-matcha); --ym-tab-bg: var(--ym-tab-bg-matcha); --ym-primary: #7ea87e; --ym-letter-bg: #f9fbf7; --ym-letter-text: #2f3e2f; }
-#yume-main-modal.theme-sakura { --ym-bg-rgb: var(--ym-bg-rgb-sakura); --ym-text: var(--ym-text-sakura); --ym-border: var(--ym-border-sakura); --ym-tab-bg: var(--ym-tab-bg-sakura); --ym-primary: #ff6b81; --ym-letter-bg: #fffafa; --ym-letter-text: #8b5a65; }
-#yume-main-modal.theme-gothic { --ym-bg-rgb: var(--ym-bg-rgb-gothic); --ym-text: var(--ym-text-gothic); --ym-border: var(--ym-border-gothic); --ym-tab-bg: var(--ym-tab-bg-gothic); --ym-primary: #dc143c; --ym-letter-bg: #2a1a1a; --ym-letter-text: #e6dada; }
-#yume-main-modal.theme-ocean { --ym-bg-rgb: var(--ym-bg-rgb-ocean); --ym-text: var(--ym-text-ocean); --ym-border: var(--ym-border-ocean); --ym-tab-bg: var(--ym-tab-bg-ocean); --ym-primary: #4facfe; --ym-letter-bg: #e0f2fe; --ym-letter-text: #0f2a3f; }
-#yume-main-modal.theme-cyber { --ym-bg-rgb: var(--ym-bg-rgb-cyber); --ym-text: var(--ym-text-cyber); --ym-border: var(--ym-border-cyber); --ym-tab-bg: var(--ym-tab-bg-cyber); --ym-primary: #ff00ff; --ym-letter-bg: #1a1a2e; --ym-letter-text: #00ffcc; }
-#yume-main-modal.theme-sunset { --ym-bg-rgb: var(--ym-bg-rgb-sunset); --ym-text: var(--ym-text-sunset); --ym-border: var(--ym-border-sunset); --ym-tab-bg: var(--ym-tab-bg-sunset); --ym-primary: #ff7f50; --ym-letter-bg: #fff0e6; --ym-letter-text: #5a2e1c; }
+#yume-main-modal.theme-light { --ym-bg: var(--ym-bg-light); --ym-text: var(--ym-text-light); --ym-border: var(--ym-border-light); --ym-tab-bg: var(--ym-tab-bg-light); --ym-primary: #ff9a9e; --ym-letter-bg: #fff; --ym-letter-text: #333; }
+#yume-main-modal.theme-matcha { --ym-bg: var(--ym-bg-matcha); --ym-text: var(--ym-text-matcha); --ym-border: var(--ym-border-matcha); --ym-tab-bg: var(--ym-tab-bg-matcha); --ym-primary: #7ea87e; --ym-letter-bg: #f9fbf7; --ym-letter-text: #2f3e2f; }
+#yume-main-modal.theme-sakura { --ym-bg: var(--ym-bg-sakura); --ym-text: var(--ym-text-sakura); --ym-border: var(--ym-border-sakura); --ym-tab-bg: var(--ym-tab-bg-sakura); --ym-primary: #f48fb1; --ym-letter-bg: #fff0f5; --ym-letter-text: #5c3a4d; }
+#yume-main-modal.theme-gothic { --ym-bg: var(--ym-bg-gothic); --ym-text: var(--ym-text-gothic); --ym-border: var(--ym-border-gothic); --ym-tab-bg: var(--ym-tab-bg-gothic); --ym-primary: #8a0303; --ym-letter-bg: #1a1a1c; --ym-letter-text: #d3d3d3; }
+#yume-main-modal.theme-ocean { --ym-bg: var(--ym-bg-ocean); --ym-text: var(--ym-text-ocean); --ym-border: var(--ym-border-ocean); --ym-tab-bg: var(--ym-tab-bg-ocean); --ym-primary: #0277bd; --ym-letter-bg: #0a192f; --ym-letter-text: #81d4fa; }
+#yume-main-modal.theme-cyber { --ym-bg: var(--ym-bg-cyber); --ym-text: var(--ym-text-cyber); --ym-border: var(--ym-border-cyber); --ym-tab-bg: var(--ym-tab-bg-cyber); --ym-primary: #d500f9; --ym-letter-bg: #09090e; --ym-letter-text: #00e5ff; }
+#yume-main-modal.theme-sunset { --ym-bg: var(--ym-bg-sunset); --ym-text: var(--ym-text-sunset); --ym-border: var(--ym-border-sunset); --ym-tab-bg: var(--ym-tab-bg-sunset); --ym-primary: #ff7043; --ym-letter-bg: #2e151b; --ym-letter-text: #ffcc80; }
 
 /* ====== 基础布局 ====== */
 #yume-floating-btn {
@@ -84,14 +74,26 @@
 }
 #yume-floating-btn:active { transform: scale(0.95); }
 
-.yume-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid rgba(128, 128, 128, 0.2); flex-shrink: 0; }
-.yume-modal-header h3 { margin: 0; color: var(--ym-primary); font-size: 1.1em; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+#yume-main-modal {
+    position: fixed; top: 8vh; left: 50%; transform: translateX(-50%);
+    width: 420px; max-width: 92vw; height: 680px; max-height: 85vh;
+    background: var(--ym-bg); color: var(--ym-text);
+    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--ym-border); border-radius: 15px;
+    z-index: 9999999; display: flex; flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); transition: background 0.3s, color 0.3s, opacity 0.3s;
+}
+
+.yume-modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 20px; border-bottom: 1px solid rgba(128, 128, 128, 0.2); flex-shrink: 0;
+}
+.yume-modal-header h3 { margin: 0; color: var(--ym-primary); font-size: 1.1em; }
 #yume-close-btn { background: transparent; border: none; color: inherit; font-size: 1.2em; cursor: pointer; }
 
 /* ====== 标签页 ====== */
 .yume-tabs { display: flex; background: var(--ym-tab-bg); flex-shrink: 0; transition: background 0.3s; }
-.yume-tab { flex: 1; text-align: center; padding: 10px 0; cursor: pointer; font-size: 0.85em; font-weight: bold; opacity: 0.6; transition: 0.2s; }
-.yume-tab:hover { opacity: 0.8; }
+.yume-tab { flex: 1; text-align: center; padding: 10px 0; cursor: pointer; font-size: 0.9em; font-weight: bold; opacity: 0.5; }
 .yume-tab.active { opacity: 1; color: var(--ym-primary); border-bottom: 2px solid var(--ym-primary); background: rgba(128,128,128,0.1); }
 
 .yume-modal-content { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; }
@@ -104,9 +106,8 @@
 .yume-input-group label { display: block; margin-bottom: 4px; font-size: 0.85em; opacity: 0.8; }
 .yume-highlight-box { margin-top: 10px; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; background: rgba(128,128,128,0.1); border: 1px dashed var(--ym-primary); }
 
-.yume-btn { width: 100%; background: var(--ym-primary); color: white; border: none; border-radius: 8px; padding: 10px; font-size: 1em; cursor: pointer; margin-top: 5px; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.yume-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-.yume-btn:disabled { background: #888; cursor: not-allowed; transform: none; }
+.yume-btn { width: 100%; background: var(--ym-primary); color: white; border: none; border-radius: 8px; padding: 10px; font-size: 1em; cursor: pointer; margin-top: 5px; transition: 0.2s; }
+.yume-btn:disabled { background: #888; cursor: not-allowed; }
 .yume-btn-outline { background: transparent; color: var(--ym-primary); border: 1px solid var(--ym-primary); border-radius: 8px; padding: 8px 12px; font-size: 0.9em; cursor: pointer; transition: all 0.2s; }
 .yume-btn-outline:hover { background: rgba(128,128,128,0.1); }
 .ym-btn-del { background: transparent; border: none; color: var(--ym-primary); cursor: pointer; opacity: 0.5; transition: 0.2s; }
@@ -114,44 +115,70 @@
 
 .ym-msg-time { font-size: 0.7em; opacity: 0.6; margin-bottom: 4px; }
 
-/* ====== 💌 信纸样式 & 折叠 ====== */
+/* ====== 文本折叠功能 ====== */
+.yume-text-collapse {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+.yume-text-collapse.expanded {
+    display: block;
+    -webkit-line-clamp: unset;
+}
+.yume-toggle-btn {
+    background: transparent; border: none; color: var(--ym-primary);
+    cursor: pointer; font-size: 0.85em; padding: 0; margin-top: 5px; text-decoration: underline;
+}
+
+/* ====== 💌 信纸样式 ====== */
 .yume-letter-card {
     background: var(--ym-letter-bg); border: 1px solid rgba(0,0,0,0.1); color: var(--ym-letter-text);
-    padding: 18px 15px 15px 15px; border-radius: 6px; margin-bottom: 5px;
-    box-shadow: 2px 4px 10px rgba(0,0,0,0.08); font-family: 'Georgia', serif; position: relative; line-height: 1.6;
+    padding: 18px 15px 15px 15px; border-radius: 4px; margin-bottom: 5px;
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.1); font-family: 'Georgia', serif; position: relative; line-height: 1.6;
 }
-.yume-letter-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; border-radius: 6px 6px 0 0; background: repeating-linear-gradient(45deg, var(--ym-primary), var(--ym-primary) 10px, transparent 10px, transparent 20px, rgba(128,128,128,0.3) 20px, rgba(128,128,128,0.3) 30px, transparent 30px, transparent 40px); }
+.yume-letter-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; border-radius: 4px 4px 0 0;
+    background: repeating-linear-gradient(45deg, var(--ym-primary), var(--ym-primary) 10px, transparent 10px, transparent 20px, #8ec5fc 20px, #8ec5fc 30px, transparent 30px, transparent 40px);
+}
 .yume-letter-header { font-size: 0.85em; opacity: 0.7; margin-bottom: 10px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 5px; text-align: left; }
 
-.yume-text-collapse { max-height: 120px; overflow: hidden; position: relative; transition: max-height 0.3s ease; }
-.yume-text-collapse.expanded { max-height: 5000px; }
-.yume-text-collapse::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: linear-gradient(to bottom, transparent, var(--ym-letter-bg)); pointer-events: none; transition: opacity 0.3s; }
-.yume-diary-card .yume-text-collapse::after { background: linear-gradient(to bottom, transparent, rgba(var(--ym-bg-rgb), var(--ym-bg-opacity))); }
-.yume-text-collapse.expanded::after { opacity: 0; }
-.yume-toggle-btn { background: transparent; border: none; color: var(--ym-primary); font-size: 0.8em; cursor: pointer; padding: 5px 0; width: 100%; text-align: center; opacity: 0.8; }
-.yume-toggle-btn:hover { opacity: 1; text-decoration: underline; }
-
 /* ====== 📖 日记样式 ====== */
-.yume-diary-card { background: rgba(128,128,128,0.05); border-left: 4px solid var(--ym-primary); padding: 12px; border-radius: 8px; font-size: 0.95em; line-height: 1.5; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.yume-diary-card { background: rgba(128,128,128,0.08); border-left: 4px solid var(--ym-primary); padding: 12px; border-radius: 8px; font-size: 0.95em; line-height: 1.5; display: flex; flex-direction: column; gap: 8px; }
 .yume-replies-container { margin-top: 5px; background: rgba(0, 0, 0, 0.1); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
 .yume-diary-reply { padding: 8px 10px; border-radius: 6px; font-size: 0.9em; line-height: 1.4; max-width: 90%; }
 .yume-diary-reply.user-reply { align-self: flex-end; background: rgba(128,128,128,0.2); border-bottom-right-radius: 2px; }
 .yume-diary-reply.ai-reply { align-self: flex-start; background: rgba(255, 154, 158, 0.15); border: 1px solid rgba(255, 154, 158, 0.3); color: var(--ym-primary); border-bottom-left-radius: 2px; }
 .ym-reply-box { display: flex; gap: 8px; margin-top: 5px; align-items: center; }
 
-/* ====== 📇 字卡聊天样式 ====== */
-.yume-wordcard-container { display: flex; flex-direction: column; height: 100%; }
-.yume-wordcard-chat { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 10px 5px; margin-bottom: 10px; border-radius: 8px; background: rgba(0,0,0,0.05); }
-.yume-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 0.95em; line-height: 1.4; position: relative; word-wrap: break-word; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.yume-bubble-user { align-self: flex-end; background: var(--ym-primary); color: #fff; border-bottom-right-radius: 4px; }
-.yume-bubble-ai { align-self: flex-start; background: rgba(128,128,128,0.15); border: 1px solid rgba(128,128,128,0.2); border-bottom-left-radius: 4px; }
-.yume-wordcard-input-area { display: flex; gap: 8px; flex-shrink: 0; }
+/* ====== 📇 字卡系统样式 ====== */
+.yume-card-list-item {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(128,128,128,0.15); padding: 8px 12px; border-radius: 6px; font-size: 0.9em;
+}
+.yume-card-list-item button { background: transparent; border: none; color: #ff5a5f; cursor: pointer; }
+.yume-bubble {
+    padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 0.95em; line-height: 1.4; margin-bottom: 5px;
+}
+.yume-bubble-user { align-self: flex-end; background: var(--ym-primary); color: #fff; border-bottom-right-radius: 2px; }
+.yume-bubble-ai { align-self: flex-start; background: rgba(128,128,128,0.2); border-bottom-left-radius: 2px; }
 
-/* 字卡列表管理 */
-#yume-card-list { max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid rgba(128,128,128,0.2); border-radius: 6px; padding: 5px; background: rgba(0,0,0,0.1); }
-.yume-card-list-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px dashed rgba(128,128,128,0.2); font-size: 0.9em; }
-.yume-card-list-item:last-child { border-bottom: none; }
-.yume-card-list-item button { background: transparent; border: none; color: #ff5a5f; cursor: pointer; opacity: 0.7; transition: 0.2s; }
-.yume-card-list-item button:hover { opacity: 1; transform: scale(1.2); }
+/* ====== 📌 记事本样式 (新增) ====== */
+.yume-note-card {
+    background: rgba(128,128,128,0.1);
+    border-left: 3px solid var(--ym-primary);
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    position: relative;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+.yume-note-header {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.8em; opacity: 0.7; margin-bottom: 5px;
+}
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }

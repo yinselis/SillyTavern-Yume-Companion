@@ -8,9 +8,10 @@
         <button id="yume-close-btn"><i class="fa-solid fa-xmark"></i></button>
     </div>
     
-    <!-- 标签栏 -->
+    <!-- 标签栏 (新增记事) -->
     <div class="yume-tabs">
         <div class="yume-tab active" data-target="yume-tab-profile">👤档案</div>
+        <div class="yume-tab" data-target="yume-tab-notes">📌记事</div>
         <div class="yume-tab" data-target="yume-tab-interact">💬互动</div>
         <div class="yume-tab" data-target="yume-tab-letters">💌信笺</div>
         <div class="yume-tab" data-target="yume-tab-diary">📖日记</div>
@@ -22,7 +23,6 @@
         <!-- 1. 档案 -->
         <div id="yume-tab-profile" class="yume-tab-pane active">
             
-            <!-- 恢复的：主题与透明度 -->
             <div style="display: flex; gap: 10px;">
                 <div class="yume-input-group" style="flex: 2;">
                     <label>🎨 手账主题 (若用自定义CSS请选默认)</label>
@@ -43,7 +43,6 @@
                 </div>
             </div>
 
-            <!-- 移入面板的：独立纪念日 -->
             <div class="yume-input-group">
                 <label>💕 纪念日 (哪天在一起的)</label>
                 <input type="date" id="ym_anniversary" class="text_pole">
@@ -69,7 +68,6 @@
             </div>
             <div id="yume-period-status" class="yume-highlight-box">请填写日期</div>
             
-            <!-- 修改为“保存” -->
             <button id="ym_btn_sync_profile" class="yume-btn" style="margin-top: 15px; background: var(--ym-primary);">💾 保存</button>
             
             <div style="display: flex; gap: 10px; margin-top: 10px;">
@@ -77,6 +75,20 @@
                 <button id="ym_btn_import" class="yume-btn-outline" style="flex:1; margin:0;"><i class="fa-solid fa-file-import"></i> 导入数据</button>
                 <input type="file" id="ym_file_import" accept=".json" style="display:none;">
             </div>
+        </div>
+
+        <!-- 1.5 记事 (新增) -->
+        <div id="yume-tab-notes" class="yume-tab-pane">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 10px; flex-shrink: 0;">
+                <button id="ym_btn_write_note" class="yume-btn-outline" style="padding: 6px 15px;">+ 新增记事</button>
+            </div>
+            
+            <div id="yume-note-writer" style="display:none; background: rgba(128,128,128,0.1); padding: 15px; border-radius: 12px; margin-bottom: 15px; flex-shrink: 0;">
+                <textarea id="ym_note_input" class="text_pole" rows="3" placeholder="写下你想让TA记住的备忘录，或对TA的观察..."></textarea>
+                <button id="ym_save_note_btn" class="yume-btn" style="margin-top: 10px; padding: 8px;">保存记事</button>
+            </div>
+
+            <div id="yume-notes-history" class="ym-chat-list"></div>
         </div>
 
         <!-- 2. 互动 -->
